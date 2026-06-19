@@ -18,6 +18,16 @@ describe("scorePrivacy", () => {
       functionalThirdPartyCount: 4,
       unknownThirdPartyCount: 5,
       crossDomainMetaRefresh: true,
+      postureFindings: [
+        { category: "TLS", name: "TLS certificate", status: "fail", risk: "high", explanation: "", recommendation: "" },
+        { category: "Page hygiene", name: "Mixed content references", status: "fail", risk: "high", explanation: "", recommendation: "" },
+        { category: "Page hygiene", name: "Cross-domain forms", status: "fail", risk: "high", explanation: "", recommendation: "" },
+        { category: "TLS", name: "HTTPS availability", status: "fail", risk: "high", explanation: "", recommendation: "" },
+        { category: "DNS email", name: "DMARC policy", status: "missing", risk: "medium", explanation: "", recommendation: "" },
+        { category: "Vulnerability disclosure", name: "security.txt", status: "missing", risk: "medium", explanation: "", recommendation: "" },
+        { category: "DNS email", name: "SPF record", status: "missing", risk: "medium", explanation: "", recommendation: "" },
+        { category: "TLS", name: "CAA records", status: "missing", risk: "medium", explanation: "", recommendation: "" },
+      ],
     });
     expect(result.value).toBeLessThan(30);
     expect(result.grade).toBe("F");

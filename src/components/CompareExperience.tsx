@@ -39,7 +39,7 @@ export function CompareExperience() {
                   <MetricCard label="Headers" value={report.score.components.headers.value} detail={`${report.score.components.headers.label} posture`} />
                   <MetricCard label="Cookies" value={report.score.components.cookies.value} detail={`${report.cookies.filter((item) => item.issues.length).length} contextual issue(s)`} />
                   <MetricCard label="Exposure" value={report.score.components.exposure.value} detail={`${report.thirdParties.length} third-party domain(s)`} />
-                  <MetricCard label="Confidence" value="Limited" detail="Static homepage only" />
+                  <MetricCard label="Advanced" value={report.score.components.advanced.value} detail="DNS, TLS, disclosure" />
                 </div>
               </article>
             ))}

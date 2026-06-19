@@ -26,6 +26,7 @@ The result is a static posture report with component scores for header posture, 
 - Contextual cookie analysis for `Secure`, `HttpOnly`, `SameSite`, scope, retention, and identifier-like names
 - HTTP header checks for CSP, HSTS, frame protection, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and cross-origin isolation headers
 - Static third-party resource mapping and tracker categorization
+- TLS certificate health, CAA, SPF, DMARC, MX, security.txt, mixed-content, form-action, and inline-script volume checks
 - Weighted 0-100 posture score with transparent evidence
 - Side-by-side comparison that avoids absolute "safer site" claims
 - JSON export, copyable summary, and browser-local scan history
@@ -42,6 +43,7 @@ Browser
     -> Fetch one public document with controlled redirects
     -> Parse static HTML without executing JavaScript
     -> Analyze headers, cookies, trackers, and third parties
+    -> Check TLS, DNS email-auth, CAA, security.txt, and page hygiene
     -> Return component scores, findings, limitations, and recommendations
   <- Structured JSON report
 
@@ -60,15 +62,18 @@ The response includes normalized and final URLs, timing, HTTPS status, score com
 
 ## Scoring model
 
-The final score is a weighted static snapshot:
+The final score is a weighted bounded snapshot:
 
-- Header posture: 45%
-- Cookie hygiene: 25%
-- Third-party exposure: 30%
+- Header posture: 35%
+- Cookie hygiene: 20%
+- Third-party exposure: 25%
+- Advanced posture: 20%
 
 Cookie findings are contextual. For example, a likely session or security cookie missing `HttpOnly` is weighted more heavily than a client-readable preference cookie. Optional advanced headers such as COOP, CORP, and COEP are included as evidence but are not treated like missing core controls for every site.
 
-Every result is labeled limited-confidence because TraceLattice does not execute JavaScript, crawl pages, authenticate, submit forms, inspect runtime network traffic, or test exploitability.
+Advanced posture covers TLS certificate expiration, DNS email-auth signals, CAA records, security.txt, static mixed content, third-party form actions, and inline script volume.
+
+Every result is labeled limited-confidence because TraceLattice does not execute JavaScript, broadly crawl pages, authenticate, submit forms, inspect runtime network traffic, or test exploitability.
 
 ## Security concepts demonstrated
 
@@ -81,6 +86,10 @@ Every result is labeled limited-confidence because TraceLattice does not execute
 - Secure cookie attributes
 - SameSite and HttpOnly cookie handling
 - Static tracker detection
+- TLS certificate posture
+- SPF, DMARC, MX, and CAA DNS posture
+- security.txt vulnerability disclosure checks
+- Mixed-content and form-action review
 - Third-party JavaScript and supply-chain exposure
 - Defensive risk scoring
 - Secure serverless API design

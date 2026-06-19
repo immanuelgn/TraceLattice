@@ -49,6 +49,12 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
     resourceTypes: index % 2 ? ["script"] : ["image", "link"],
     count: Math.max(1, 6 - index),
   }));
+  const posture = [
+    { category: "TLS" as const, name: "TLS certificate", status: "pass" as const, risk: "low" as const, value: "120 day(s) until expiration", explanation: "The HTTPS certificate was valid during this scan.", recommendation: "Continue monitoring certificate expiration." },
+    { category: "DNS email" as const, name: "DMARC policy", status: level === "low" ? "pass" as const : "context" as const, risk: level === "low" ? "low" as const : "medium" as const, value: level === "low" ? "p=reject" : "p=none", explanation: "A DMARC policy was found for the root domain.", recommendation: "Move toward quarantine or reject after validating legitimate mail flows." },
+    { category: "Vulnerability disclosure" as const, name: "security.txt", status: level === "high" ? "missing" as const : "pass" as const, risk: level === "high" ? "medium" as const : "low" as const, explanation: level === "high" ? "No usable security.txt file was found." : "A security.txt file was found.", recommendation: "Publish and maintain vulnerability disclosure contact information." },
+    { category: "Page hygiene" as const, name: "Mixed content references", status: "pass" as const, risk: "low" as const, explanation: "No static mixed-content references were found.", recommendation: "Continue keeping static resources HTTPS-only." },
+  ];
 
   return {
     scanId: `demo-${level}`,
@@ -79,6 +85,7 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
         headers: { value: level === "low" ? 94 : level === "medium" ? 71 : 45, label: level === "low" ? "Strong" : level === "medium" ? "Context" : "Weak", reasons: risky ? ["Several recommended browser controls were not observed."] : ["Core static header controls look strong."] },
         cookies: { value: level === "low" ? 100 : level === "medium" ? 94 : 58, label: level === "high" ? "Weak" : "Strong", reasons: risky ? ["Cookie attributes deserve contextual review."] : ["No Set-Cookie hygiene issues were observed."] },
         exposure: { value: level === "low" ? 92 : level === "medium" ? 66 : 28, label: level === "low" ? "Strong" : level === "medium" ? "Context" : "Weak", reasons: risky ? ["Third-party services expand the observable trust surface."] : ["Low visible third-party exposure."] },
+        advanced: { value: level === "low" ? 92 : level === "medium" ? 82 : 70, label: level === "low" ? "Strong" : "Context", reasons: level === "low" ? ["DNS, TLS, disclosure, and page-hygiene checks look strong."] : ["Some DNS or disclosure signals need site context."] },
       },
     },
     headers,
@@ -95,6 +102,7 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
     }] : [],
     trackers,
     thirdParties,
+    posture,
     resources: thirdParties.map((item) => ({ type: "script", url: `https://${item.domain}/asset.js`, domain: item.domain, thirdParty: true })),
     inlineScriptCount: level === "high" ? 17 : 4,
     externalScriptCount: config.scripts,

@@ -8,12 +8,14 @@ export const metadata: Metadata = {
 };
 
 const ledger = [
-  ["Header posture", "45% weight"],
-  ["Cookie hygiene", "25% weight"],
-  ["Third-party exposure", "30% weight"],
+  ["Header posture", "35% weight"],
+  ["Cookie hygiene", "20% weight"],
+  ["Third-party exposure", "25% weight"],
+  ["Advanced posture", "20% weight"],
   ["Core headers", "CSP, HSTS, frame protection, nosniff, referrer, permissions"],
   ["Cookie context", "session/security cookies weighted above preference cookies"],
   ["Exposure context", "known trackers and third-party scripts weighted above functional CDNs"],
+  ["Advanced context", "TLS, DNS email-auth, CAA, security.txt, mixed content, forms"],
 ];
 
 export default function MethodologyPage() {
@@ -39,6 +41,8 @@ export default function MethodologyPage() {
             <li>Static script, iframe, image, link, form, and meta-refresh references</li>
             <li>First-party versus third-party root domains</li>
             <li>Matches against a transparent local provider pattern list</li>
+            <li>TLS certificate expiration and DNS posture signals</li>
+            <li>CAA, SPF, DMARC, MX, security.txt, mixed-content, form-action, and inline-script volume checks</li>
           </ul>
         </article>
         <article className="glass content-panel">
@@ -46,8 +50,8 @@ export default function MethodologyPage() {
           <h2>What is not inspected</h2>
           <ul>
             <li>No target JavaScript execution</li>
-            <li>No crawling beyond the homepage</li>
-            <li>No fetched scripts, images, or iframes</li>
+            <li>No broad crawling beyond bounded same-origin posture checks</li>
+            <li>No execution of fetched scripts, images, or iframes</li>
             <li>No login, form submission, or session state</li>
             <li>No exploitation or payload testing</li>
             <li>No legal or regulatory compliance determination</li>
@@ -57,7 +61,7 @@ export default function MethodologyPage() {
       <section className="glass content-panel">
         <h2>Scoring ledger</h2>
         <p>
-          TraceLattice calculates three component scores: security header posture, cookie hygiene, and third-party exposure. The final score is a weighted static snapshot,
+          TraceLattice calculates four component scores: security header posture, cookie hygiene, third-party exposure, and advanced posture. The final score is a weighted bounded snapshot,
           not a universal security verdict. Optional advanced headers such as COOP, CORP, and COEP are shown as evidence but are not treated like missing core controls for every site.
         </p>
         <div className="penalty-grid">{ledger.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div>
@@ -66,7 +70,7 @@ export default function MethodologyPage() {
       <section className="limitations">
         <h2>Interpretation matters</h2>
         <p>
-          Every score carries limited confidence because TraceLattice does not execute JavaScript, crawl, authenticate, or observe runtime network traffic. A lower score does not
+          Every score carries limited confidence because TraceLattice does not execute JavaScript, broadly crawl, authenticate, or observe runtime network traffic. A lower score does not
           prove a breach, malicious behavior, or non-compliance. A higher score does not prove safety or compliance. This is an educational static snapshot that helps prioritize manual investigation.
         </p>
       </section>

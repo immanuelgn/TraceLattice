@@ -3,6 +3,7 @@ import { getDomain } from "tldts";
 import { analyzeCookies } from "@/lib/scan/analyzeCookies";
 import { analyzeHeaders } from "@/lib/scan/analyzeHeaders";
 import { detectTrackers } from "@/lib/scan/detectTrackers";
+import { analyzePosture } from "@/lib/scan/analyzePosture";
 import { extractThirdParties } from "@/lib/scan/extractThirdParties";
 import { fetchWebsite } from "@/lib/scan/fetchWebsite";
 import { parseHtml } from "@/lib/scan/parseHtml";
@@ -13,7 +14,7 @@ import { normalizeUrl } from "@/lib/scan/validateUrl";
 import type { ScanReport } from "@/lib/scan/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 15;
+export const maxDuration = 20;
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "anonymous";
@@ -36,6 +37,12 @@ export async function POST(request: NextRequest) {
     const final = new URL(fetched.finalUrl);
     const rootDomain = getDomain(final.hostname, { allowPrivateDomains: true }) || final.hostname;
     const crossDomainMetaRefresh = resources.some((resource) => resource.type === "meta-refresh" && resource.thirdParty);
+    const posture = await analyzePosture({
+      finalUrl: fetched.finalUrl,
+      rootDomain,
+      resources,
+      inlineScriptCount: parsed.inlineScriptCount,
+    });
     const score = scorePrivacy({
       https: final.protocol === "https:",
       redirectsToHttps: fetched.redirectsToHttps,
@@ -48,6 +55,7 @@ export async function POST(request: NextRequest) {
       functionalThirdPartyCount: thirdParties.filter((party) => party.category === "CDN / functional").length,
       unknownThirdPartyCount: thirdParties.filter((party) => party.category === "Unknown").length,
       crossDomainMetaRefresh,
+      postureFindings: posture,
     });
 
     const report: ScanReport = {
@@ -71,14 +79,15 @@ export async function POST(request: NextRequest) {
       cookies,
       trackers,
       thirdParties,
+      posture,
       resources,
       inlineScriptCount: parsed.inlineScriptCount,
       externalScriptCount: parsed.externalScriptCount,
-      recommendations: buildRecommendations(headers, cookies, trackers, thirdParties.length),
+      recommendations: buildRecommendations(headers, cookies, trackers, thirdParties.length, posture),
       limitations: [
-        "Static homepage scan only; no JavaScript is executed.",
+        "Bounded public-origin scan only; no JavaScript is executed.",
         "Dynamic trackers and consent-dependent resources may not be visible.",
-        "No crawling, authentication, exploitation, or compliance determination is performed.",
+        "No broad crawling, authentication, exploitation, brute force, or compliance determination is performed.",
         "Scores are deterministic educational heuristics, not legal or audit conclusions.",
       ],
     };

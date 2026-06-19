@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, Braces, Check, ChevronDown, Clipboard, Cookie, Download, ExternalLink, Globe2, Info, LockKeyhole, Network, Radar, Save, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Braces, Check, ChevronDown, Clipboard, Cookie, Download, ExternalLink, Globe2, Info, LockKeyhole, Network, Radar, Save, ShieldCheck, Telescope } from "lucide-react";
 import type { ScanReport } from "@/lib/scan/types";
 import { saveRecentScan } from "@/lib/scan/storage";
 import { MetricCard, Pill, RiskBadge, ScoreRing } from "./Primitives";
@@ -23,10 +23,11 @@ export function ReportView({ report }: { report: ScanReport }) {
     { name: "Headers", component: report.score.components.headers },
     { name: "Cookies", component: report.score.components.cookies },
     { name: "Exposure", component: report.score.components.exposure },
+    { name: "Advanced", component: report.score.components.advanced },
   ];
 
   const copySummary = async () => {
-    await navigator.clipboard.writeText(`${report.domain} scored ${report.score.value}/100 (${report.score.label}) as an observed static posture score, not a full security ranking. Header posture ${report.score.components.headers.value}/100, cookie hygiene ${report.score.components.cookies.value}/100, exposure ${report.score.components.exposure.value}/100. ${report.trackers.length} known tracker(s), ${cookieIssues} cookie issue(s), and ${report.thirdParties.length} third-party domain(s) were observed.`);
+    await navigator.clipboard.writeText(`${report.domain} scored ${report.score.value}/100 (${report.score.label}) as an observed static posture score, not a full security ranking. Header posture ${report.score.components.headers.value}/100, cookie hygiene ${report.score.components.cookies.value}/100, exposure ${report.score.components.exposure.value}/100, advanced posture ${report.score.components.advanced.value}/100. ${report.trackers.length} known tracker(s), ${cookieIssues} cookie issue(s), and ${report.thirdParties.length} third-party domain(s) were observed.`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -66,7 +67,7 @@ export function ReportView({ report }: { report: ScanReport }) {
         <MetricCard label="Header posture" value={report.score.components.headers.value} detail={`${report.score.components.headers.label} static controls`} icon={<LockKeyhole />} />
         <MetricCard label="Cookie hygiene" value={report.score.components.cookies.value} detail={`${cookieIssues} contextual issue(s)`} icon={<Cookie />} />
         <MetricCard label="Exposure" value={report.score.components.exposure.value} detail={`${report.thirdParties.length} third-party domain(s)`} icon={<Network />} />
-        <MetricCard label="Confidence" value="Limited" detail="No JS execution or crawl" icon={<Info />} />
+        <MetricCard label="Advanced" value={report.score.components.advanced.value} detail="DNS, TLS, disclosure" icon={<Telescope />} />
       </section>
 
       <section className="glass component-panel">
@@ -96,7 +97,7 @@ export function ReportView({ report }: { report: ScanReport }) {
       </section>
 
       <details className="glass evidence-shell">
-        <summary><span><Braces size={18} /><strong>Technical evidence</strong><small>Headers, cookies, score ledger, trackers, and resource inventory</small></span><ChevronDown size={18} /></summary>
+        <summary><span><Braces size={18} /><strong>Technical evidence</strong><small>Headers, cookies, advanced posture, trackers, and resources</small></span><ChevronDown size={18} /></summary>
         <div className="evidence-content">
           <section className="panel evidence-section">
             <div className="panel-title"><div><span className="eyebrow">Exposure lattice</span><h2>Browser → site → third parties</h2></div><Network /></div>
@@ -125,6 +126,11 @@ export function ReportView({ report }: { report: ScanReport }) {
           <section className="panel table-panel evidence-section">
             <div className="panel-title"><div><span className="eyebrow">Header posture</span><h2>HTTP security headers</h2></div><ShieldCheck /></div>
             <div className="table-wrap"><table><thead><tr><th>Header</th><th>Status</th><th>Risk</th><th>Observed value / recommendation</th></tr></thead><tbody>{report.headers.map((header) => <tr key={header.name}><td className="mono">{header.name}</td><td>{header.present ? "Present" : "Missing"}</td><td><RiskBadge risk={header.risk} /></td><td>{header.value || header.recommendation}</td></tr>)}</tbody></table></div>
+          </section>
+
+          <section className="panel table-panel evidence-section">
+            <div className="panel-title"><div><span className="eyebrow">Advanced posture</span><h2>DNS, TLS, disclosure, and page hygiene</h2></div><Telescope /></div>
+            <div className="table-wrap"><table><thead><tr><th>Check</th><th>Status</th><th>Risk</th><th>Evidence / recommendation</th></tr></thead><tbody>{report.posture.map((item) => <tr key={`${item.category}-${item.name}`}><td><span className="mono">{item.category}</span><br />{item.name}</td><td>{item.status}</td><td><RiskBadge risk={item.risk} /></td><td>{item.value ? `${item.value}. ` : ""}{item.explanation} {item.recommendation}</td></tr>)}</tbody></table></div>
           </section>
 
           <section className="report-grid evidence-section">

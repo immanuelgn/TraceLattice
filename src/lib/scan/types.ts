@@ -63,6 +63,16 @@ export interface ScoreComponent {
   reasons: string[];
 }
 
+export interface PostureFinding {
+  category: "TLS" | "DNS email" | "Vulnerability disclosure" | "Page hygiene";
+  name: string;
+  status: "pass" | "context" | "missing" | "fail";
+  risk: Risk;
+  value?: string;
+  explanation: string;
+  recommendation: string;
+}
+
 export interface ScanReport {
   scanId: string;
   inputUrl: string;
@@ -93,12 +103,14 @@ export interface ScanReport {
       headers: ScoreComponent;
       cookies: ScoreComponent;
       exposure: ScoreComponent;
+      advanced: ScoreComponent;
     };
   };
   headers: HeaderFinding[];
   cookies: CookieFinding[];
   trackers: TrackerFinding[];
   thirdParties: ThirdPartyFinding[];
+  posture: PostureFinding[];
   resources: ResourceFinding[];
   inlineScriptCount: number;
   externalScriptCount: number;

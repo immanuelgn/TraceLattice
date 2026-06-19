@@ -1,4 +1,4 @@
-import type { CookieFinding, HeaderFinding, ScorePenalty, TrackerFinding } from "./types";
+import type { CookieFinding, HeaderFinding, PostureFinding, ScorePenalty, TrackerFinding } from "./types";
 
 interface ScoreInput {
   https: boolean;
@@ -12,6 +12,7 @@ interface ScoreInput {
   functionalThirdPartyCount: number;
   unknownThirdPartyCount: number;
   crossDomainMetaRefresh: boolean;
+  postureFindings?: PostureFinding[];
 }
 
 function componentLabel(value: number) {
@@ -29,6 +30,7 @@ export function scorePrivacy(input: ScoreInput) {
   const headerReasons: string[] = [];
   const cookieReasons: string[] = [];
   const exposureReasons: string[] = [];
+  const advancedReasons: string[] = [];
   const headerPenalty = (label: string, points: number, reason: string) => {
     add(label, points, reason);
     headerReasons.push(reason);
@@ -44,10 +46,16 @@ export function scorePrivacy(input: ScoreInput) {
     exposureReasons.push(reason);
     return points;
   };
+  const advancedPenalty = (label: string, points: number, reason: string) => {
+    add(label, points, reason);
+    advancedReasons.push(reason);
+    return points;
+  };
 
   let headersScore = 100;
   let cookiesScore = 100;
   let exposureScore = 100;
+  let advancedScore = 100;
 
   if (!input.https) headersScore -= headerPenalty("HTTPS unavailable", 25, "The final page was not served over HTTPS.");
   if (!input.redirectsToHttps) headersScore -= headerPenalty("HTTPS redirect uncertain", 6, "The scan could not confirm an HTTP-to-HTTPS upgrade.");
@@ -117,10 +125,17 @@ export function scorePrivacy(input: ScoreInput) {
   else if (input.externalScriptCount > 12) exposureScore -= exposurePenalty("External script count", 5, `${input.externalScriptCount} external scripts were observed.`);
   if (input.crossDomainMetaRefresh) exposureScore -= exposurePenalty("Cross-domain meta refresh", 5, "The static page appears to redirect visitors to another domain.");
 
+  const posture = input.postureFindings || [];
+  const highPosture = posture.filter((item) => item.risk === "high").length;
+  const mediumPosture = posture.filter((item) => item.risk === "medium").length;
+  if (highPosture) advancedScore -= advancedPenalty("Advanced posture failures", cap(highPosture * 15, 45), `${highPosture} advanced posture signal(s) had high severity.`);
+  if (mediumPosture) advancedScore -= advancedPenalty("Contextual posture signals", cap(mediumPosture * 5, 35), `${mediumPosture} advanced posture signal(s) require context.`);
+
   headersScore = Math.max(0, Math.min(100, Math.round(headersScore)));
   cookiesScore = Math.max(0, Math.min(100, Math.round(cookiesScore)));
   exposureScore = Math.max(0, Math.min(100, Math.round(exposureScore)));
-  const value = Math.max(0, Math.min(100, Math.round(headersScore * 0.45 + cookiesScore * 0.25 + exposureScore * 0.3)));
+  advancedScore = Math.max(0, Math.min(100, Math.round(advancedScore)));
+  const value = Math.max(0, Math.min(100, Math.round(headersScore * 0.35 + cookiesScore * 0.2 + exposureScore * 0.25 + advancedScore * 0.2)));
   const grade = value >= 90 ? "A" : value >= 80 ? "B" : value >= 70 ? "C" : value >= 60 ? "D" : "F";
   const label = value >= 90 ? "Excellent" : value >= 80 ? "Good" : value >= 70 ? "Mixed Static Signals" : value >= 60 ? "Context Required" : "Weak";
   const positiveNotes = [
@@ -146,6 +161,11 @@ export function scorePrivacy(input: ScoreInput) {
       value: exposureScore,
       label: componentLabel(exposureScore),
       reasons: exposureReasons.length ? exposureReasons.slice(0, 3) : ["No known tracker or third-party exposure was visible in static HTML."],
+    },
+    advanced: {
+      value: advancedScore,
+      label: componentLabel(advancedScore),
+      reasons: advancedReasons.length ? advancedReasons.slice(0, 3) : ["DNS, TLS, disclosure, and page-hygiene checks did not raise material concerns."],
     },
   };
 

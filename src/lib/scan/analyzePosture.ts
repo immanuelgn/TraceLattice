@@ -1,4 +1,4 @@
-import { resolve, resolveCaa, resolveMx, resolveTxt } from "node:dns/promises";
+import { resolveAny, resolveCaa, resolveMx, resolveTxt } from "node:dns/promises";
 import * as tls from "node:tls";
 import type { PostureFinding, ResourceFinding, Risk } from "./types";
 import { validatePublicUrl } from "./validateUrl";
@@ -88,7 +88,7 @@ async function checkDns(rootDomain: string): Promise<PostureFinding[]> {
     resolveTxt(`_dmarc.${rootDomain}`),
     resolveMx(rootDomain),
     resolveCaa(rootDomain),
-    resolve(rootDomain, "DS"),
+    resolveAny(rootDomain),
     resolveTxt(`_mta-sts.${rootDomain}`),
     resolveTxt(`_smtp._tls.${rootDomain}`),
   ]);
@@ -97,7 +97,7 @@ async function checkDns(rootDomain: string): Promise<PostureFinding[]> {
   const dmarc = dmarcResult.status === "fulfilled" ? dmarcResult.value : [];
   const mx = mxResult.status === "fulfilled" ? mxResult.value : [];
   const caa = caaResult.status === "fulfilled" ? caaResult.value : [];
-  const ds = dsResult.status === "fulfilled" && Array.isArray(dsResult.value) ? dsResult.value : [];
+  const ds = dsResult.status === "fulfilled" && Array.isArray(dsResult.value) ? dsResult.value.filter((record) => (record as { type?: string }).type === "DS") : [];
   const mtaSts = mtaStsResult.status === "fulfilled" ? mtaStsResult.value : [];
   const tlsRpt = tlsRptResult.status === "fulfilled" ? tlsRptResult.value : [];
   const spf = textRecordIncludes(txt, "v=spf1");

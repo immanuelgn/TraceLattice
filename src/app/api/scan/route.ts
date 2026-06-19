@@ -17,7 +17,7 @@ export const runtime = "nodejs";
 export const maxDuration = 25;
 
 const MAX_EXTRA_PAGES = 2;
-const SKIP_PATH = /(logout|log-out|signout|sign-out|delete|remove|cart|checkout|admin|account|settings|billing)/i;
+const SKIP_PATH = /(login|log-in|signin|sign-in|logout|log-out|signout|sign-out|delete|remove|cart|checkout|admin|account|settings|billing)/i;
 
 async function fetchExtraPages(candidates: string[], finalOrigin: string, finalUrl: string) {
   const unique = [...new Set(candidates)]

@@ -126,8 +126,10 @@ export function scorePrivacy(input: ScoreInput) {
   if (input.crossDomainMetaRefresh) exposureScore -= exposurePenalty("Cross-domain meta refresh", 5, "The static page appears to redirect visitors to another domain.");
 
   const posture = input.postureFindings || [];
-  const highPosture = posture.filter((item) => item.risk === "high").length;
-  const mediumPosture = posture.filter((item) => item.risk === "medium").length;
+  const optionalContextSignals = new Set(["DNSSEC delegation", "MTA-STS policy signal", "TLS reporting signal", "robots.txt", "sitemap.xml"]);
+  const scoreRelevantPosture = posture.filter((item) => !optionalContextSignals.has(item.name));
+  const highPosture = scoreRelevantPosture.filter((item) => item.risk === "high").length;
+  const mediumPosture = scoreRelevantPosture.filter((item) => item.risk === "medium").length;
   if (highPosture) advancedScore -= advancedPenalty("Advanced posture failures", cap(highPosture * 15, 45), `${highPosture} advanced posture signal(s) had high severity.`);
   if (mediumPosture) advancedScore -= advancedPenalty("Contextual posture signals", cap(mediumPosture * 5, 35), `${mediumPosture} advanced posture signal(s) require context.`);
 

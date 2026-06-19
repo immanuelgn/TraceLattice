@@ -7,7 +7,7 @@ export function classifyDomain(domain: string): TrackerCategory {
 
 export function detectTrackers(resources: ResourceFinding[]): TrackerFinding[] {
   const grouped = new Map<string, { category: TrackerCategory; evidence: Set<string> }>();
-  for (const resource of resources.filter((item) => item.thirdParty)) {
+  for (const resource of resources.filter((item) => item.thirdParty && item.type !== "anchor")) {
     const category = classifyDomain(resource.domain);
     if (category === "Unknown" || category === "CDN / functional") continue;
     const item = grouped.get(resource.domain) || { category, evidence: new Set<string>() };

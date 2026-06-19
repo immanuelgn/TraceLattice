@@ -12,7 +12,7 @@ export function extractThirdParties(parsed: ParsedHtml, finalUrl: string) {
   });
 
   const grouped = new Map<string, ThirdPartyFinding>();
-  for (const resource of resources.filter((item) => item.thirdParty)) {
+  for (const resource of resources.filter((item) => item.thirdParty && item.type !== "anchor")) {
     const current = grouped.get(resource.domain) || {
       domain: resource.domain,
       category: classifyDomain(resource.domain),

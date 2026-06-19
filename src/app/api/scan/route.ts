@@ -64,6 +64,8 @@ export async function POST(request: NextRequest) {
       inlineScriptCount: parsed.inlineScriptCount + extraPages.reduce((sum, page) => sum + page.parsed.inlineScriptCount, 0),
       externalScriptCount: parsed.externalScriptCount + extraPages.reduce((sum, page) => sum + page.parsed.externalScriptCount, 0),
       canonicalUrl: parsed.canonicalUrl,
+      inlineEventHandlerCount: parsed.inlineEventHandlerCount + extraPages.reduce((sum, page) => sum + page.parsed.inlineEventHandlerCount, 0),
+      inlineScriptRiskCount: parsed.inlineScriptRiskCount + extraPages.reduce((sum, page) => sum + page.parsed.inlineScriptRiskCount, 0),
     };
     const inspectedUrls = [fetched.finalUrl, ...extraPages.map((page) => page.fetched.finalUrl)];
     const { resources, thirdParties } = extractThirdParties(combinedParsed, fetched.finalUrl);
@@ -77,6 +79,8 @@ export async function POST(request: NextRequest) {
       rootDomain,
       resources,
       inlineScriptCount: combinedParsed.inlineScriptCount,
+      inlineEventHandlerCount: combinedParsed.inlineEventHandlerCount,
+      inlineScriptRiskCount: combinedParsed.inlineScriptRiskCount,
     });
     const score = scorePrivacy({
       https: final.protocol === "https:",
@@ -123,6 +127,7 @@ export async function POST(request: NextRequest) {
       limitations: [
         "Bounded public-origin scan only; no JavaScript is executed.",
         "At most two additional same-origin HTML pages are fetched from ordinary links.",
+        "Referenced JavaScript and CSS are inventoried from HTML attributes, but their code is not executed.",
         "Dynamic trackers and consent-dependent resources may not be visible.",
         "No broad crawling, authentication, exploitation, brute force, or compliance determination is performed.",
         "Scores are deterministic educational heuristics, not legal or audit conclusions.",

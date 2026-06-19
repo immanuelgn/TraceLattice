@@ -42,7 +42,8 @@ export default function AboutPage() {
         <h2>What the scanner does</h2>
         <p>
           Each scan fetches the requested public page and up to two same-origin HTML pages discovered from ordinary links. It also checks DNS email-auth records,
-          CAA, TLS certificate health, security.txt, mixed-content references, third-party form actions, cookies, headers, trackers, and third-party domains.
+          DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files, mixed-content references, SRI coverage,
+          reverse-tabnabbing signals, third-party form actions, cookies, headers, trackers, and third-party domains.
         </p>
       </section>
     </div>

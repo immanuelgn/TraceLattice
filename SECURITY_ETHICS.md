@@ -23,4 +23,4 @@ Cookie values are never returned or stored. HTML is held only in memory for the 
 
 ## Accuracy
 
-TraceLattice may miss resources loaded after JavaScript execution, broad crawling, user interaction, consent, geography checks, authentication, or delayed initialization. Findings and scores are educational heuristics, not proof of security, maliciousness, GDPR/CCPA compliance, or legal conclusions.
+TraceLattice may miss resources loaded after JavaScript execution, broad crawling, user interaction, consent, geography checks, authentication, or delayed initialization. It inventories static script/link attributes, but it does not run target code. Findings and scores are educational heuristics, not proof of security, maliciousness, GDPR/CCPA compliance, or legal conclusions.

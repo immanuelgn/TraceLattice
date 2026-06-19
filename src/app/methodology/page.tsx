@@ -15,7 +15,7 @@ const ledger = [
   ["Core headers", "CSP, HSTS, frame protection, nosniff, referrer, permissions"],
   ["Cookie context", "session/security cookies weighted above preference cookies"],
   ["Exposure context", "known trackers and third-party scripts weighted above functional CDNs"],
-  ["Advanced context", "TLS, DNS email-auth, CAA, security.txt, mixed content, forms"],
+  ["Advanced context", "TLS, DNS email-auth, DNSSEC, CAA, security.txt, SRI, forms, client-side risk"],
 ];
 
 export default function MethodologyPage() {
@@ -43,7 +43,8 @@ export default function MethodologyPage() {
             <li>First-party versus third-party root domains</li>
             <li>Matches against a transparent local provider pattern list</li>
             <li>TLS certificate expiration and DNS posture signals</li>
-            <li>CAA, SPF, DMARC, MX, security.txt, mixed-content, form-action, and inline-script volume checks</li>
+            <li>SPF, DMARC, MX, CAA, DNSSEC, MTA-STS, and TLS-RPT record checks</li>
+            <li>security.txt, robots.txt, sitemap.xml, mixed-content, form-action, SRI, reverse-tabnabbing, and inline-script risk checks</li>
           </ul>
         </article>
         <article className="glass content-panel">
@@ -52,7 +53,7 @@ export default function MethodologyPage() {
           <ul>
             <li>No target JavaScript execution</li>
             <li>No broad crawl beyond the capped same-origin HTML sample</li>
-            <li>No fetching or execution of referenced scripts, images, or iframes</li>
+            <li>No execution of referenced scripts, images, or iframes</li>
             <li>No login, form submission, or session state</li>
             <li>No exploitation or payload testing</li>
             <li>No legal or regulatory compliance determination</li>

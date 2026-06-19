@@ -22,10 +22,16 @@ export interface CookieFinding {
 }
 
 export interface ResourceFinding {
-  type: "script" | "iframe" | "image" | "link" | "form" | "meta-refresh";
+  type: "script" | "iframe" | "image" | "link" | "form" | "anchor" | "meta-refresh";
   url: string;
   domain: string;
   thirdParty: boolean;
+  rel?: string;
+  target?: string;
+  integrity?: boolean;
+  crossOrigin?: string;
+  inputTypes?: string[];
+  autocomplete?: string | null;
 }
 
 export interface TrackerFinding {
@@ -64,7 +70,7 @@ export interface ScoreComponent {
 }
 
 export interface PostureFinding {
-  category: "TLS" | "DNS email" | "Vulnerability disclosure" | "Page hygiene";
+  category: "TLS" | "DNS email" | "DNS integrity" | "Vulnerability disclosure" | "Page hygiene" | "Supply chain" | "Client-side risk" | "Forms" | "Discovery";
   name: string;
   status: "pass" | "context" | "missing" | "fail";
   risk: Risk;
@@ -125,6 +131,8 @@ export interface ParsedHtml {
   inlineScriptCount: number;
   externalScriptCount: number;
   canonicalUrl?: string;
+  inlineEventHandlerCount: number;
+  inlineScriptRiskCount: number;
 }
 
 export interface RecentScan {

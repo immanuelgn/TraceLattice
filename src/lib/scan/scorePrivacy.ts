@@ -15,7 +15,7 @@ interface ScoreInput {
 }
 
 function componentLabel(value: number) {
-  return value >= 80 ? "Strong" as const : value >= 60 ? "Review" as const : "Weak" as const;
+  return value >= 80 ? "Strong" as const : value >= 60 ? "Context" as const : "Weak" as const;
 }
 
 function cap(points: number, max: number) {
@@ -122,7 +122,7 @@ export function scorePrivacy(input: ScoreInput) {
   exposureScore = Math.max(0, Math.min(100, Math.round(exposureScore)));
   const value = Math.max(0, Math.min(100, Math.round(headersScore * 0.45 + cookiesScore * 0.25 + exposureScore * 0.3)));
   const grade = value >= 90 ? "A" : value >= 80 ? "B" : value >= 70 ? "C" : value >= 60 ? "D" : "F";
-  const label = value >= 90 ? "Excellent" : value >= 80 ? "Good" : value >= 70 ? "Moderate" : value >= 60 ? "Needs Review" : "Weak";
+  const label = value >= 90 ? "Excellent" : value >= 80 ? "Good" : value >= 70 ? "Mixed Static Signals" : value >= 60 ? "Context Required" : "Weak";
   const positiveNotes = [
     ...(input.https ? ["The final page uses HTTPS."] : []),
     ...(headerRisk("Content-Security-Policy") === "low" ? ["A strong Content-Security-Policy baseline was observed."] : []),
@@ -160,7 +160,7 @@ export function scorePrivacy(input: ScoreInput) {
       : value >= 80
         ? "Good observed static baseline with a small number of trust or hardening gaps."
         : value >= 60
-          ? "Several observable controls, cookie attributes, or third-party exposure areas deserve review."
+          ? "Mixed static signals were observed; interpret the findings with site purpose, scale, and runtime context."
           : "The static homepage exposes multiple observable posture concerns that need manual review.",
     topReasons: penalties.slice().sort((a, b) => b.points - a.points).slice(0, 3).map((item) => item.reason),
     penalties,

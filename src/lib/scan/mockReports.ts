@@ -11,7 +11,7 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
   const config = level === "low"
     ? { domain: "privacygood.example", score: 94, grade: "A" as const, label: "Excellent" as const, third: 2, scripts: 3 }
     : level === "medium"
-      ? { domain: "balancedsite.example", score: 74, grade: "C" as const, label: "Moderate" as const, third: 7, scripts: 12 }
+      ? { domain: "balancedsite.example", score: 74, grade: "C" as const, label: "Mixed Static Signals" as const, third: 7, scripts: 12 }
       : { domain: "trackerheavy.example", score: 38, grade: "F" as const, label: "Weak" as const, third: 16, scripts: 29 };
 
   const risky = level !== "low";
@@ -76,9 +76,9 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
       ] : [{ label: "Minor hardening", points: 6, reason: "Optional cross-origin policies were not observed." }],
       positiveNotes: ["HTTPS is enabled.", ...(level === "low" ? ["No known trackers were detected.", "Low third-party exposure."] : [])],
       components: {
-        headers: { value: level === "low" ? 94 : level === "medium" ? 71 : 45, label: level === "low" ? "Strong" : level === "medium" ? "Review" : "Weak", reasons: risky ? ["Several recommended browser controls were not observed."] : ["Core static header controls look strong."] },
+        headers: { value: level === "low" ? 94 : level === "medium" ? 71 : 45, label: level === "low" ? "Strong" : level === "medium" ? "Context" : "Weak", reasons: risky ? ["Several recommended browser controls were not observed."] : ["Core static header controls look strong."] },
         cookies: { value: level === "low" ? 100 : level === "medium" ? 94 : 58, label: level === "high" ? "Weak" : "Strong", reasons: risky ? ["Cookie attributes deserve contextual review."] : ["No Set-Cookie hygiene issues were observed."] },
-        exposure: { value: level === "low" ? 92 : level === "medium" ? 66 : 28, label: level === "low" ? "Strong" : level === "medium" ? "Review" : "Weak", reasons: risky ? ["Third-party services expand the observable trust surface."] : ["Low visible third-party exposure."] },
+        exposure: { value: level === "low" ? 92 : level === "medium" ? 66 : 28, label: level === "low" ? "Strong" : level === "medium" ? "Context" : "Weak", reasons: risky ? ["Third-party services expand the observable trust surface."] : ["Low visible third-party exposure."] },
       },
     },
     headers,

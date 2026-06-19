@@ -59,7 +59,7 @@ export interface ScorePenalty {
 
 export interface ScoreComponent {
   value: number;
-  label: "Strong" | "Review" | "Weak";
+  label: "Strong" | "Context" | "Weak";
   reasons: string[];
 }
 
@@ -82,7 +82,7 @@ export interface ScanReport {
   score: {
     value: number;
     grade: "A" | "B" | "C" | "D" | "F";
-    label: "Excellent" | "Good" | "Moderate" | "Needs Review" | "Weak";
+    label: "Excellent" | "Good" | "Mixed Static Signals" | "Context Required" | "Weak";
     confidence: "limited" | "moderate";
     scopeNote: string;
     summary: string;

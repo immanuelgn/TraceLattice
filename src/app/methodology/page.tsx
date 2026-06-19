@@ -61,7 +61,7 @@ export default function MethodologyPage() {
           not a universal security verdict. Optional advanced headers such as COOP, CORP, and COEP are shown as evidence but are not treated like missing core controls for every site.
         </p>
         <div className="penalty-grid">{ledger.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div>
-        <div className="grade-scale">{[["90-100", "Excellent"], ["80-89", "Good"], ["70-79", "Moderate"], ["60-69", "Needs Review"], ["0-59", "Weak"]].map(([range, label]) => <div key={range}><strong>{range}</strong><span>score band</span><small>{label}</small></div>)}</div>
+        <div className="grade-scale">{[["90-100", "Excellent"], ["80-89", "Good"], ["70-79", "Mixed signals"], ["60-69", "Context required"], ["0-59", "Weak"]].map(([range, label]) => <div key={range}><strong>{range}</strong><span>score band</span><small>{label}</small></div>)}</div>
       </section>
       <section className="limitations">
         <h2>Interpretation matters</h2>

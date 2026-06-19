@@ -6,7 +6,7 @@ export function SectionHeading({ eyebrow, title, copy }: { eyebrow?: string; tit
   return (
     <div className="section-heading">
       {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-      <h2>{title}</h2>
+      <h1>{title}</h1>
       {copy && <p>{copy}</p>}
     </div>
   );
@@ -32,7 +32,7 @@ export function ScoreRing({ score, size = "large", caption = "static score" }: {
 
 export function MetricCard({ label, value, detail, icon }: { label: string; value: ReactNode; detail: string; icon?: ReactNode }) {
   return (
-    <article className="glass metric-card">
+    <article className="metric-card">
       <div className="metric-top"><span>{label}</span>{icon}</div>
       <strong>{value}</strong>
       <p>{detail}</p>

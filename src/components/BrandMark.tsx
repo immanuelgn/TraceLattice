@@ -1,9 +1,9 @@
-import { ScanSearch } from "lucide-react";
+import Image from "next/image";
 
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <span className="brand">
-      <span className="brand-icon"><ScanSearch size={18} /></span>
+      <Image className="brand-icon" src="/icon.png" alt="" width={38} height={38} priority />
       {!compact && <span>Trace<span>Lattice</span></span>}
     </span>
   );

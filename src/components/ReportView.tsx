@@ -67,7 +67,7 @@ export function ReportView({ report }: { report: ScanReport }) {
         <MetricCard label="Header posture" value={report.score.components.headers.value} detail={`${report.score.components.headers.label} static controls`} icon={<LockKeyhole />} />
         <MetricCard label="Cookie hygiene" value={report.score.components.cookies.value} detail={`${cookieIssues} contextual issue(s)`} icon={<Cookie />} />
         <MetricCard label="Exposure" value={report.score.components.exposure.value} detail={`${report.thirdParties.length} third-party domain(s)`} icon={<Network />} />
-        <MetricCard label="Advanced" value={report.score.components.advanced.value} detail="DNS, TLS, disclosure" icon={<Telescope />} />
+        <MetricCard label="Advanced" value={report.score.components.advanced.value} detail={`${report.inspectedUrls.length} page(s), DNS/TLS`} icon={<Telescope />} />
       </section>
 
       <section className="glass component-panel">
@@ -131,6 +131,11 @@ export function ReportView({ report }: { report: ScanReport }) {
           <section className="panel table-panel evidence-section">
             <div className="panel-title"><div><span className="eyebrow">Advanced posture</span><h2>DNS, TLS, disclosure, and page hygiene</h2></div><Telescope /></div>
             <div className="table-wrap"><table><thead><tr><th>Check</th><th>Status</th><th>Risk</th><th>Evidence / recommendation</th></tr></thead><tbody>{report.posture.map((item) => <tr key={`${item.category}-${item.name}`}><td><span className="mono">{item.category}</span><br />{item.name}</td><td>{item.status}</td><td><RiskBadge risk={item.risk} /></td><td>{item.value ? `${item.value}. ` : ""}{item.explanation} {item.recommendation}</td></tr>)}</tbody></table></div>
+          </section>
+
+          <section className="panel evidence-section">
+            <div className="panel-title"><div><span className="eyebrow">Coverage</span><h2>Inspected HTML pages</h2></div><Globe2 /></div>
+            <div className="domain-list">{report.inspectedUrls.map((url) => <div key={url}><div><strong>Fetched</strong><span className="mono">{url}</span></div><RiskBadge risk="low" /></div>)}</div>
           </section>
 
           <section className="report-grid evidence-section">

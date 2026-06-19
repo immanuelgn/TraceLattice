@@ -1,6 +1,6 @@
 # TraceLattice
 
-TraceLattice is a defensive web security project that runs a bounded static scan of a public homepage and turns the observable signals into an explainable posture report.
+TraceLattice is a defensive web security project that runs a bounded static scan of a public origin and turns the observable signals into an explainable posture report.
 
 Live demo: [https://tracelattice.vercel.app](https://tracelattice.vercel.app)
 
@@ -11,11 +11,11 @@ TraceLattice looks at the parts of a site that are visible before running any ta
 - HTTPS state and redirect behavior
 - HTTP security headers
 - `Set-Cookie` names and attributes, without storing cookie values
-- Static scripts, iframes, images, links, forms, and meta refresh references
+- Static scripts, iframes, images, links, forms, and meta refresh references across up to three HTML pages
 - First-party vs. third-party root domains
 - Known analytics, advertising, social, session replay, tag manager, CDN, and unknown provider patterns
 
-The result is a static posture report with component scores for header posture, cookie hygiene, and third-party exposure. It is not a vulnerability scanner, compliance audit, or replacement for manual review.
+The result is a static posture report with component scores for header posture, cookie hygiene, third-party exposure, and advanced posture. It is not a vulnerability scanner, compliance audit, or replacement for manual review.
 
 ## Technical highlights
 
@@ -23,6 +23,7 @@ The result is a static posture report with component scores for header posture, 
 - DNS-aware SSRF guardrails for public URL scanning
 - Manual redirect validation with a three-hop ceiling
 - Request timeout and response-size limits to control serverless cost and abuse
+- Bounded same-origin HTML sampling: requested page plus up to two ordinary same-site links
 - Contextual cookie analysis for `Secure`, `HttpOnly`, `SameSite`, scope, retention, and identifier-like names
 - HTTP header checks for CSP, HSTS, frame protection, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and cross-origin isolation headers
 - Static third-party resource mapping and tracker categorization
@@ -40,7 +41,8 @@ Browser
     -> Normalize and validate URL
     -> Reject private, local, reserved, and unsafe targets
     -> Resolve DNS and validate every resolved address
-    -> Fetch one public document with controlled redirects
+    -> Fetch the requested public document with controlled redirects
+    -> Fetch up to two same-origin HTML pages from ordinary links
     -> Parse static HTML without executing JavaScript
     -> Analyze headers, cookies, trackers, and third parties
     -> Check TLS, DNS email-auth, CAA, security.txt, and page hygiene
@@ -73,7 +75,7 @@ Cookie findings are contextual. For example, a likely session or security cookie
 
 Advanced posture covers TLS certificate expiration, DNS email-auth signals, CAA records, security.txt, static mixed content, third-party form actions, and inline script volume.
 
-Every result is labeled limited-confidence because TraceLattice does not execute JavaScript, broadly crawl pages, authenticate, submit forms, inspect runtime network traffic, or test exploitability.
+Every result is labeled limited-confidence because TraceLattice does not execute JavaScript, broadly crawl a site, authenticate, submit forms, inspect runtime network traffic, or test exploitability.
 
 ## Security concepts demonstrated
 
@@ -125,9 +127,10 @@ npx vercel --prod
 
 TraceLattice is intentionally scoped:
 
-- It scans one public homepage at a time.
+- It scans one public origin at a time.
+- It fetches the requested page and at most two additional same-origin HTML pages.
 - It does not execute target JavaScript.
-- It does not crawl linked pages or fetch referenced assets.
+- It does not broadly crawl a site or fetch referenced scripts, images, or iframes.
 - It may miss dynamic, authenticated, region-specific, or consent-gated behavior.
 - It does not prove that a site is secure, insecure, compliant, malicious, or compromised.
 - It compares observed static exposure, not the overall security maturity of an organization.
@@ -136,7 +139,7 @@ TraceLattice is intentionally scoped:
 
 - Versioned tracker pattern sources
 - Shareable signed report snapshots
-- Optional browser-based crawl mode
+- Optional browser-based runtime mode
 - CSP directive visualization
 - Accessibility and visual regression tests
 - Distributed rate limiting for production traffic

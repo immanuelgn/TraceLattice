@@ -2,19 +2,49 @@ import type { Metadata } from "next";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
 import { Pill, SectionHeading } from "@/components/Primitives";
 
-export const metadata: Metadata = { title: "About the project", description: "Architecture, skills, resume bullets, and portfolio notes for TraceLattice." };
+export const metadata: Metadata = {
+  title: "About TraceLattice",
+  description: "Architecture and scope for the TraceLattice defensive web posture scanner.",
+};
 
 export default function AboutPage() {
   return (
     <div className="page-shell container">
-      <SectionHeading eyebrow="Portfolio case study" title="Privacy engineering, shipped as a real product." copy="TraceLattice demonstrates secure backend design, explainable risk scoring, thoughtful UX, and cost-aware serverless architecture." />
-      <section className="glass about-hero"><div><Pill tone="violet">Why it exists</Pill><h2>Privacy risk is often visible before a single line of target JavaScript runs.</h2><p>I built TraceLattice to turn those public clues—headers, cookies, script references, and third-party domains—into a structured report that security teams and non-specialists can both understand.</p></div><div className="stat-stack"><span><strong>$0</strong> required infrastructure</span><span><strong>1</strong> bounded homepage fetch</span><span><strong>0</strong> retained page bodies</span></div></section>
-      <section className="glass content-panel"><h2>Technical architecture</h2><ArchitectureDiagram /></section>
-      <section className="content-grid">
-        <article className="glass content-panel"><h2>Skills demonstrated</h2><div className="tag-cloud">{["Next.js App Router", "TypeScript", "React", "Tailwind CSS", "Route Handlers", "SSRF prevention", "DNS validation", "HTTP headers", "Cookie security", "Privacy engineering", "Risk scoring", "Vercel", "Vitest", "Accessible UI"].map((tag) => <span key={tag}>{tag}</span>)}</div></article>
-        <article className="glass content-panel"><h2>What I learned</h2><ul><li>SSRF prevention is a pipeline, not a single regex.</li><li>Privacy signals need context to avoid alarmist conclusions.</li><li>Transparent scoring builds more trust than opaque “AI risk” claims.</li><li>Narrow product scope can improve security, cost, and usability at once.</li></ul></article>
+      <SectionHeading
+        eyebrow="Defensive scanner"
+        title="Bounded web posture analysis without exploitation."
+        copy="TraceLattice turns public web, DNS, TLS, cookie, and static resource signals into an explainable security posture report."
+      />
+
+      <section className="glass about-hero">
+        <div>
+          <Pill tone="violet">Why it exists</Pill>
+          <h2>Useful security signals are often visible before runtime testing begins.</h2>
+          <p>
+            TraceLattice collects safe public signals from a target origin, applies transparent scoring, and shows the evidence behind each result without running payloads,
+            logging in, or making compliance claims.
+          </p>
+        </div>
+        <div className="stat-stack">
+          <span><strong>$0</strong> required infrastructure</span>
+          <span><strong>3</strong> HTML pages max</span>
+          <span><strong>0</strong> retained page bodies</span>
+        </div>
       </section>
-      <section className="glass content-panel resume-panel"><Pill tone="cyan">Resume-ready</Pill><h2>Selected accomplishment bullets</h2><ul><li>Built TraceLattice, a defensive privacy analysis platform using Next.js, TypeScript, and Vercel serverless functions.</li><li>Implemented redirect-aware SSRF protection, DNS/IP validation, HTTP security header analysis, cookie risk detection, tracker categorization, and deterministic risk scoring.</li><li>Designed a polished dashboard with report exports, website comparison, local-only scan history, transparent methodology, and zero required paid services.</li></ul></section>
+
+      <section className="glass content-panel">
+        <h2>Technical architecture</h2>
+        <ArchitectureDiagram />
+      </section>
+
+      <section className="glass content-panel">
+        <Pill tone="cyan">Scope</Pill>
+        <h2>What the scanner does</h2>
+        <p>
+          Each scan fetches the requested public page and up to two same-origin HTML pages discovered from ordinary links. It also checks DNS email-auth records,
+          CAA, TLS certificate health, security.txt, mixed-content references, third-party form actions, cookies, headers, trackers, and third-party domains.
+        </p>
+      </section>
     </div>
   );
 }

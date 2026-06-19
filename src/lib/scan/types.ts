@@ -78,6 +78,7 @@ export interface ScanReport {
   inputUrl: string;
   normalizedUrl: string;
   finalUrl: string;
+  inspectedUrls: string[];
   domain: string;
   rootDomain: string;
   scannedAt: string;
@@ -120,6 +121,7 @@ export interface ScanReport {
 
 export interface ParsedHtml {
   resources: Omit<ResourceFinding, "domain" | "thirdParty">[];
+  sameOriginLinks: string[];
   inlineScriptCount: number;
   externalScriptCount: number;
   canonicalUrl?: string;

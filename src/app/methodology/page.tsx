@@ -38,7 +38,8 @@ export default function MethodologyPage() {
             <li>Final HTTPS state and redirect behavior</li>
             <li>Public HTTP response headers</li>
             <li>Set-Cookie names and attributes, never values</li>
-            <li>Static script, iframe, image, link, form, and meta-refresh references</li>
+            <li>Requested public page plus up to two same-origin HTML pages</li>
+            <li>Static script, iframe, image, link, form, and meta-refresh references across inspected pages</li>
             <li>First-party versus third-party root domains</li>
             <li>Matches against a transparent local provider pattern list</li>
             <li>TLS certificate expiration and DNS posture signals</li>
@@ -50,8 +51,8 @@ export default function MethodologyPage() {
           <h2>What is not inspected</h2>
           <ul>
             <li>No target JavaScript execution</li>
-            <li>No broad crawling beyond bounded same-origin posture checks</li>
-            <li>No execution of fetched scripts, images, or iframes</li>
+            <li>No broad crawl beyond the capped same-origin HTML sample</li>
+            <li>No fetching or execution of referenced scripts, images, or iframes</li>
             <li>No login, form submission, or session state</li>
             <li>No exploitation or payload testing</li>
             <li>No legal or regulatory compliance determination</li>

@@ -1,6 +1,6 @@
 # Security and ethics
 
-TraceLattice is defensive-use software for examining public homepage metadata.
+TraceLattice is defensive-use software for examining bounded public-origin metadata.
 
 It does not perform exploitation, vulnerability attacks, brute force, payload testing, bypass attempts, credential capture, login automation, private-system scanning, full-site crawling, or JavaScript execution.
 
@@ -12,7 +12,7 @@ It does not perform exploitation, vulnerability attacks, brute force, payload te
 - hostnames require a public suffix where practical;
 - DNS A and AAAA records are checked before requests;
 - each redirect destination is independently validated;
-- redirects, time, and response body size are bounded;
+- redirects, time, extra same-origin HTML requests, and response body size are bounded;
 - internal error details and stack traces are not returned.
 
 DNS validation reduces SSRF risk but a production-grade scanner with higher stakes should additionally pin the validated IP at connection time to mitigate DNS rebinding.
@@ -23,4 +23,4 @@ Cookie values are never returned or stored. HTML is held only in memory for the 
 
 ## Accuracy
 
-TraceLattice may miss resources loaded after JavaScript execution, user interaction, consent, geography checks, authentication, or delayed initialization. Findings and scores are educational heuristics, not proof of security, maliciousness, GDPR/CCPA compliance, or legal conclusions.
+TraceLattice may miss resources loaded after JavaScript execution, broad crawling, user interaction, consent, geography checks, authentication, or delayed initialization. Findings and scores are educational heuristics, not proof of security, maliciousness, GDPR/CCPA compliance, or legal conclusions.

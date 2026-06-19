@@ -61,6 +61,7 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
     inputUrl: `https://${config.domain}`,
     normalizedUrl: `https://${config.domain}/`,
     finalUrl: `https://${config.domain}/`,
+    inspectedUrls: [`https://${config.domain}/`, `https://${config.domain}/privacy`, `https://${config.domain}/security`],
     domain: config.domain,
     rootDomain: config.domain,
     scannedAt: new Date().toISOString(),

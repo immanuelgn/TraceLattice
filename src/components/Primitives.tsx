@@ -44,7 +44,7 @@ export function DisclaimerBanner() {
   return (
     <div className="disclaimer">
       <Info size={18} />
-      <p><strong>Static, defensive analysis.</strong> TraceLattice inspects one public homepage, visible headers, cookies, and resource references. It does not execute JavaScript, crawl, exploit, or determine legal compliance.</p>
+      <p><strong>Bounded defensive analysis.</strong> TraceLattice samples up to three public same-origin pages plus visible DNS, TLS, header, cookie, and resource signals. It does not execute target JavaScript, authenticate, exploit, or determine legal compliance.</p>
     </div>
   );
 }

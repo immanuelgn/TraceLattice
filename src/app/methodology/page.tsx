@@ -24,7 +24,7 @@ export default function MethodologyPage() {
       <SectionHeading
         eyebrow="Transparent by design"
         title="How the signal becomes a static posture score."
-        copy="The model is deterministic, inspectable, and intentionally bounded. It compares observed homepage signals; it does not rank entire companies or replace a DAST audit."
+        copy="The model is deterministic, inspectable, and intentionally bounded. It compares observed public-origin signals; it does not rank entire companies or replace a DAST audit."
       />
       <section className="glass content-panel">
         <h2>Analysis pipeline</h2>

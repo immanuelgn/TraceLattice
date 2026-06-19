@@ -21,9 +21,9 @@ export function Footer() {
         <div className="footer-links">
           <Link href="/methodology">Methodology</Link>
           <Link href="/ethics">Security & ethics</Link>
-          <Link href="/about">Portfolio notes</Link>
+          <Link href="/about">About</Link>
         </div>
-        <p className="footer-note">No crawling. No JavaScript execution. No compliance guarantees.</p>
+        <p className="footer-note">Bounded passive analysis. No target JavaScript execution or compliance guarantees.</p>
       </div>
     </footer>
   );

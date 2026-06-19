@@ -1,5 +1,5 @@
-import { Cookie, Gauge, LockKeyhole, Network, ShieldCheck, Sparkles } from "lucide-react";
-import { DisclaimerBanner, Pill } from "@/components/Primitives";
+import { Cookie, Gauge, LockKeyhole, Network, ShieldCheck } from "lucide-react";
+import { DisclaimerBanner } from "@/components/Primitives";
 import { UrlScanForm } from "@/components/ScanExperience";
 
 const checks = [
@@ -13,14 +13,14 @@ export default function Home() {
   return (
     <div>
       <section className="hero hero-compact">
-        <div className="grid-bg" /><div className="hero-orb orb-one" /><div className="hero-orb orb-two" />
+        <div className="grid-bg" />
         <div className="container hero-content">
-          <Pill tone="cyan"><Sparkles size={14} />Defensive web intelligence</Pill>
-          <h1>Know what a website<br /><span>exposes.</span></h1>
-          <p>A focused static review of security headers, cookies, trackers, and third-party trust—without crawling or executing target JavaScript.</p>
+          <div className="hero-kicker"><span />Defensive web posture scanner</div>
+          <h1>Inspect a website&apos;s public <span>security posture.</span></h1>
+          <p>Review observable headers, cookies, TLS, DNS, trackers, and third-party dependencies through a bounded defensive scan.</p>
           <UrlScanForm />
           <div className="hero-proof">
-            <span><ShieldCheck size={16} />Public homepage only</span>
+            <span><ShieldCheck size={16} />Up to three public pages</span>
             <span><ShieldCheck size={16} />No page content retained</span>
             <span><ShieldCheck size={16} />Evidence-led scoring</span>
           </div>
@@ -40,8 +40,8 @@ export default function Home() {
         <details className="scope-disclosure">
           <summary>How the scan stays safe and what it can miss</summary>
           <div>
-            <p>TraceLattice validates DNS and every redirect, blocks private and reserved networks, limits requests to nine seconds and 1.5 MB, and fetches only one public homepage.</p>
-            <p>Because it does not execute JavaScript, it can miss trackers, API calls, and resources loaded dynamically after the page opens. Scores describe observable static posture—not proof of security or compliance.</p>
+            <p>TraceLattice validates DNS and every redirect, blocks private and reserved networks, caps response size and duration, and samples no more than three same-origin HTML pages.</p>
+            <p>Because it does not execute target JavaScript, it can miss runtime trackers, API calls, and consent-gated resources. Scores describe observable posture—not proof of security or compliance.</p>
           </div>
         </details>
       </section>

@@ -2,7 +2,7 @@ import type { ScanReport } from "./types";
 
 const limitations = [
   "Demo data uses a fictional domain and is not a live scan.",
-  "Production scans analyze one public homepage without executing JavaScript.",
+  "Production scans sample up to three public same-origin HTML pages without executing target JavaScript.",
   "Dynamic resources may not be visible to static analysis.",
   "Scores are educational heuristics, not legal or compliance guarantees.",
 ];

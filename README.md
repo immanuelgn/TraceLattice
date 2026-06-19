@@ -1,6 +1,6 @@
 # TraceLattice
 
-TraceLattice is a defensive web security project that runs a bounded static scan of a public origin and turns the observable signals into an explainable posture report.
+TraceLattice is a defensive cybersecurity project that runs a bounded static scan of a public web origin and turns observable web, DNS, TLS, cookie, and third-party signals into an explainable posture report.
 
 Live demo: [https://tracelattice.vercel.app](https://tracelattice.vercel.app)
 

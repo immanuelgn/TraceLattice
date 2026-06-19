@@ -32,6 +32,7 @@ async function fetchExtraPages(candidates: string[], finalOrigin: string, finalU
     const fetched = await fetchWebsite(url);
     const final = new URL(fetched.finalUrl);
     if (final.origin !== finalOrigin) throw new Error("Skipped cross-origin crawl result.");
+    if (SKIP_PATH.test(final.pathname)) throw new Error("Skipped sensitive same-origin crawl result.");
     return { fetched, parsed: parseHtml(fetched.html, fetched.finalUrl) };
   }));
 

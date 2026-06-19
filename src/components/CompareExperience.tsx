@@ -34,7 +34,7 @@ export function CompareExperience() {
             {[first, second].map((report, index) => (
               <article className={`glass compare-card ${verdict?.leader === report ? "winner" : ""}`} key={report.scanId}>
                 <div className="compare-card-head"><div><Pill tone={index === 0 ? "cyan" : "violet"}>Site {index === 0 ? "A" : "B"}</Pill><h2>{report.domain}</h2></div>{verdict?.leader === report && <Pill tone="green"><ShieldCheck size={13} />Higher static score</Pill>}</div>
-                <ScoreRing score={report.score.value} grade={report.score.grade} size="small" />
+                <ScoreRing score={report.score.value} size="small" />
                 <div className="comparison-metrics">
                   <MetricCard label="Headers" value={report.score.components.headers.value} detail={`${report.score.components.headers.label} posture`} />
                   <MetricCard label="Cookies" value={report.score.components.cookies.value} detail={`${report.cookies.filter((item) => item.issues.length).length} contextual issue(s)`} />

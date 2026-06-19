@@ -26,7 +26,7 @@ export function ReportView({ report }: { report: ScanReport }) {
   ];
 
   const copySummary = async () => {
-    await navigator.clipboard.writeText(`${report.domain} scored ${report.score.value}/100 (${report.score.grade}, ${report.score.label}) as an observed static posture score, not a full security ranking. Header posture ${report.score.components.headers.value}/100, cookie hygiene ${report.score.components.cookies.value}/100, exposure ${report.score.components.exposure.value}/100. ${report.trackers.length} known tracker(s), ${cookieIssues} cookie issue(s), and ${report.thirdParties.length} third-party domain(s) were observed.`);
+    await navigator.clipboard.writeText(`${report.domain} scored ${report.score.value}/100 (${report.score.label}) as an observed static posture score, not a full security ranking. Header posture ${report.score.components.headers.value}/100, cookie hygiene ${report.score.components.cookies.value}/100, exposure ${report.score.components.exposure.value}/100. ${report.trackers.length} known tracker(s), ${cookieIssues} cookie issue(s), and ${report.thirdParties.length} third-party domain(s) were observed.`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -56,7 +56,7 @@ export function ReportView({ report }: { report: ScanReport }) {
           </div>
         </div>
         <div className="score-block">
-          <ScoreRing score={report.score.value} grade={report.score.grade} />
+          <ScoreRing score={report.score.value} />
           <Pill tone={report.score.value >= 80 ? "green" : report.score.value >= 60 ? "amber" : "red"}>{report.score.label}</Pill>
           <span className="confidence-label">Observed static posture</span>
         </div>

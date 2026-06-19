@@ -21,11 +21,11 @@ export function RiskBadge({ risk }: { risk: Risk }) {
   return <span className={`risk risk-${risk}`}>{icon}{risk}</span>;
 }
 
-export function ScoreRing({ score, grade, size = "large" }: { score: number; grade: string; size?: "large" | "small" }) {
+export function ScoreRing({ score, size = "large", caption = "static score" }: { score: number; size?: "large" | "small"; caption?: string }) {
   const color = score >= 80 ? "#3ee6b0" : score >= 60 ? "#ffbd59" : "#ff6577";
   return (
     <div className={`score-ring score-${size}`} style={{ background: `conic-gradient(${color} ${score * 3.6}deg, rgba(255,255,255,.07) 0deg)` }}>
-      <div><strong>{score}</strong><span>{grade} grade</span></div>
+      <div><strong>{score}</strong><span>{caption}</span></div>
     </div>
   );
 }

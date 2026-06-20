@@ -27,7 +27,7 @@ export function RecentScans() {
     <>
       <div className="recent-toolbar">
         <p>{items.length} locally stored scan summaries</p>
-        <button className="button button-secondary" onClick={() => { clearRecentScans(); setItems([]); }}>
+        <button className="button button-secondary" type="button" onClick={() => { clearRecentScans(); setItems([]); }}>
           <Trash2 size={16} />Clear all
         </button>
       </div>
@@ -49,7 +49,7 @@ export function RecentScans() {
             </div>
             <div className="recent-actions">
               <span className="mono"><ExternalLink size={13} />{item.finalUrl}</span>
-              <button className="icon-button" aria-label={`Remove ${item.domain}`} onClick={() => { removeRecentScan(item.domain); setItems(getRecentScans()); }}>
+              <button className="icon-button" type="button" aria-label={`Remove ${item.domain}`} onClick={() => { removeRecentScan(item.domain); setItems(getRecentScans()); }}>
                 <Trash2 size={16} />
               </button>
             </div>

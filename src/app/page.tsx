@@ -1,6 +1,6 @@
-import { CheckCircle2, Cookie, Gauge, LockKeyhole, Network, ShieldCheck } from "lucide-react";
+import { Cookie, Gauge, LockKeyhole, Network } from "lucide-react";
+import { HomeScanExperience } from "@/components/HomeScanExperience";
 import { DisclaimerBanner } from "@/components/Primitives";
-import { UrlScanForm } from "@/components/ScanExperience";
 
 const checks = [
   [LockKeyhole, "Transport controls", "HTTPS, CSP, HSTS, framing, MIME and browser policy headers"],
@@ -9,44 +9,10 @@ const checks = [
   [Gauge, "Posture model", "Evidence-led components with transparent deductions and limitations"],
 ] as const;
 
-const coverage = [
-  "HTTP response controls",
-  "TLS certificate health",
-  "DNS and email authentication",
-  "Third-party supply chain",
-  "Static client-side risk",
-  "Vulnerability disclosure",
-];
-
 export default function Home() {
   return (
     <div className="scan-page">
-      <section className="scan-workspace container">
-        <div className="scan-intro">
-          <div className="product-label"><span />TraceLattice scanner</div>
-          <h1>Map a website&apos;s public security posture.</h1>
-          <p>Run a bounded defensive assessment across observable web, DNS, TLS, cookie, and third-party signals.</p>
-          <div className="coverage-list" aria-label="Scanner coverage">
-            {coverage.map((item) => <span key={item}><CheckCircle2 size={15} />{item}</span>)}
-          </div>
-        </div>
-
-        <div className="scan-console">
-          <div className="console-header">
-            <div>
-              <span className="console-eyebrow">New assessment</span>
-              <h2>Scan a public origin</h2>
-            </div>
-            <span className="console-mode"><ShieldCheck size={14} />Passive</span>
-          </div>
-          <UrlScanForm />
-          <div className="console-foot">
-            <span>Public HTTP/S only</span>
-            <span>3 HTML pages max</span>
-            <span>No page body retention</span>
-          </div>
-        </div>
-      </section>
+      <HomeScanExperience />
 
       <section className="home-dashboard container">
         <div className="dashboard-heading">
@@ -54,7 +20,7 @@ export default function Home() {
             <span className="section-index">01</span>
             <h2>Assessment coverage</h2>
           </div>
-          <p>Each category contributes evidence to a bounded posture report—not a universal safety verdict.</p>
+          <p>Each category contributes evidence to a bounded posture report, not a universal safety verdict.</p>
         </div>
         <div className="check-strip">
           {checks.map(([Icon, title, copy]) => (

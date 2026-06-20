@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Braces, CheckCircle2, Gauge, LockKeyhole, ServerCog, ShieldCheck } from "lucide-react";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
 import { Pill, SectionHeading } from "@/components/Primitives";
 
@@ -8,6 +10,13 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const decisions = [
+    [LockKeyhole, "SSRF-aware fetching", "Public DNS and IP ranges are validated before the first request and again at every redirect."],
+    [Gauge, "Bounded execution", "Time, redirects, response bytes, pages, and resources are capped for predictable serverless behavior."],
+    [Braces, "Deterministic analysis", "The report is generated from typed local rules and transparent weights, with no opaque model call."],
+    [ServerCog, "Minimal infrastructure", "The production version needs no database, paid API, background queue, or retained page content."],
+  ] as const;
+
   return (
     <div className="page-shell container">
       <SectionHeading
@@ -45,6 +54,31 @@ export default function AboutPage() {
           DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files, mixed-content references, SRI coverage,
           reverse-tabnabbing signals, third-party form actions, cookies, headers, trackers, and third-party domains.
         </p>
+      </section>
+
+      <section className="content-panel portfolio-proof">
+        <div className="portfolio-proof-heading">
+          <div><Pill tone="green">Engineering evidence</Pill><h2>Built to be inspected, not merely demonstrated.</h2></div>
+          <ShieldCheck size={28} />
+        </div>
+        <div className="decision-grid">
+          {decisions.map(([Icon, title, copy]) => (
+            <article key={title}>
+              <Icon size={19} />
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </div>
+        <div className="verification-list">
+          <span><CheckCircle2 size={15} />Focused unit suites for URL validation, scoring, headers, cookies, trackers, and third parties</span>
+          <span><CheckCircle2 size={15} />Responsive browser verification at desktop, tablet, and mobile widths</span>
+          <span><CheckCircle2 size={15} />Production build, lint, API, loading, error, export, and report-state checks</span>
+        </div>
+        <div className="proof-links">
+          <Link href="/methodology">Inspect the scoring model</Link>
+          <Link href="/ethics">Review security guardrails</Link>
+        </div>
       </section>
     </div>
   );

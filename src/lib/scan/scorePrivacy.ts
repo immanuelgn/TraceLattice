@@ -1,4 +1,5 @@
 import type { CookieFinding, HeaderFinding, PostureFinding, ScorePenalty, TrackerFinding } from "./types";
+import { calculateWeightedScore, scoreBand } from "./scoring";
 
 interface ScoreInput {
   https: boolean;
@@ -137,9 +138,6 @@ export function scorePrivacy(input: ScoreInput) {
   cookiesScore = Math.max(0, Math.min(100, Math.round(cookiesScore)));
   exposureScore = Math.max(0, Math.min(100, Math.round(exposureScore)));
   advancedScore = Math.max(0, Math.min(100, Math.round(advancedScore)));
-  const value = Math.max(0, Math.min(100, Math.round(headersScore * 0.35 + cookiesScore * 0.2 + exposureScore * 0.25 + advancedScore * 0.2)));
-  const grade = value >= 90 ? "A" : value >= 80 ? "B" : value >= 70 ? "C" : value >= 60 ? "D" : "F";
-  const label = value >= 90 ? "Excellent" : value >= 80 ? "Good" : value >= 70 ? "Mixed Static Signals" : value >= 60 ? "Context Required" : "Weak";
   const positiveNotes = [
     ...(input.https ? ["The final page uses HTTPS."] : []),
     ...(headerRisk("Content-Security-Policy") === "low" ? ["A strong Content-Security-Policy baseline was observed."] : []),
@@ -170,6 +168,8 @@ export function scorePrivacy(input: ScoreInput) {
       reasons: advancedReasons.length ? advancedReasons.slice(0, 3) : ["DNS, TLS, disclosure, and page-hygiene checks did not raise material concerns."],
     },
   };
+  const value = calculateWeightedScore(components);
+  const { grade, label } = scoreBand(value);
 
   return {
     value,

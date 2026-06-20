@@ -24,7 +24,7 @@ export function RiskBadge({ risk }: { risk: Risk }) {
 export function ScoreRing({ score, size = "large", caption = "static score" }: { score: number; size?: "large" | "small"; caption?: string }) {
   const color = score >= 80 ? "#3ee6b0" : score >= 60 ? "#ffbd59" : "#ff6577";
   return (
-    <div className={`score-ring score-${size}`} style={{ background: `conic-gradient(${color} ${score * 3.6}deg, rgba(255,255,255,.07) 0deg)` }}>
+    <div className={`score-ring score-${size}`} role="img" aria-label={`${score} out of 100 ${caption}`} style={{ background: `conic-gradient(${color} ${score * 3.6}deg, rgba(255,255,255,.07) 0deg)` }}>
       <div><strong>{score}</strong><span>{caption}</span></div>
     </div>
   );

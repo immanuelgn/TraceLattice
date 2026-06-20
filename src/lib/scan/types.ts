@@ -80,6 +80,11 @@ export interface PostureFinding {
 }
 
 export interface ScanReport {
+  source: {
+    kind: "live" | "demo";
+    label: string;
+    description: string;
+  };
   scanId: string;
   inputUrl: string;
   normalizedUrl: string;

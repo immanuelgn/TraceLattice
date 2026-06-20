@@ -1,31 +1,94 @@
 "use client";
 
-import { FormEvent, useId, useState } from "react";
-import { ArrowRight, LoaderCircle, PlayCircle, ScanSearch } from "lucide-react";
+import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import { AlertCircle, ArrowRight, Check, LoaderCircle, PlayCircle, RotateCcw, ScanSearch, X } from "lucide-react";
 import { mockReports } from "@/lib/scan/mockReports";
 import type { ScanReport } from "@/lib/scan/types";
 import { ReportView } from "./ReportView";
 
+const scanStages = [
+  "Validating the public origin",
+  "Fetching bounded HTML",
+  "Inspecting headers, cookies, DNS, and TLS",
+  "Building the evidence-led report",
+];
+
+const demoProfiles = [
+  { key: "low" as const, label: "Modern SaaS", detail: "Strong baseline" },
+  { key: "medium" as const, label: "Publisher", detail: "Mixed signals" },
+  { key: "high" as const, label: "Legacy portal", detail: "High exposure" },
+];
+
+function explainScanError(message: string) {
+  if (/limit reached/i.test(message)) return "This scanner limits repeated requests to protect the public service. Wait a few minutes, then retry.";
+  if (/respond|reached|unavailable|automated requests/i.test(message)) return "The origin may be slow, offline, or blocking automated requests. Confirm the address or try again later.";
+  if (/private|reserved|localhost|port|protocol|credentials|public suffix/i.test(message)) return "For safety, TraceLattice accepts only ordinary public HTTP or HTTPS origins on standard ports.";
+  if (/HTML document|response is too large|1\.5 MB/i.test(message)) return "The target did not return a small public HTML page that fits this bounded scanner.";
+  return "Review the address and try again. The scanner never bypasses access controls or retries aggressively.";
+}
+
 export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; onResult?: (report: ScanReport) => void }) {
   const inputId = useId();
+  const statusId = `${inputId}-status`;
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [report, setReport] = useState<ScanReport | null>(null);
+  const [stage, setStage] = useState(0);
+  const controllerRef = useRef<AbortController | null>(null);
+  const stageTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopTimers = () => {
+    if (stageTimerRef.current) clearInterval(stageTimerRef.current);
+    stageTimerRef.current = null;
+  };
+
+  useEffect(() => () => {
+    controllerRef.current?.abort();
+    if (stageTimerRef.current) clearInterval(stageTimerRef.current);
+  }, []);
 
   const run = async (value: string) => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setLoading(true);
     setError("");
+    setStage(0);
+    stopTimers();
+    stageTimerRef.current = setInterval(() => {
+      setStage((current) => Math.min(scanStages.length - 1, current + 1));
+    }, 2200);
+    const timeout = setTimeout(() => controller.abort("client-timeout"), 30_000);
+
     try {
-      const response = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: value }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "The website could not be scanned.");
-      setReport(data);
-      onResult?.(data);
+      const response = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: value }),
+        signal: controller.signal,
+      });
+      const data = await response.json().catch(() => null) as ScanReport | { error?: string } | null;
+      if (!response.ok || !data || "error" in data) {
+        throw new Error(data && "error" in data && data.error ? data.error : "The website could not be scanned.");
+      }
+      setStage(scanStages.length - 1);
+      setReport(data as ScanReport);
+      onResult?.(data as ScanReport);
       setTimeout(() => document.getElementById("scan-report")?.scrollIntoView({ behavior: "smooth" }), 80);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "The website could not be scanned.");
+      if (controller.signal.aborted && controller.signal.reason !== "client-timeout") return;
+      setError(
+        controller.signal.reason === "client-timeout"
+          ? "The scan exceeded the 30-second browser wait limit."
+          : err instanceof Error
+            ? err.message
+            : "The website could not be scanned.",
+      );
     } finally {
+      clearTimeout(timeout);
+      stopTimers();
+      if (controllerRef.current === controller) controllerRef.current = null;
       setLoading(false);
     }
   };
@@ -33,6 +96,12 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (url.trim()) void run(url);
+  };
+
+  const cancel = () => {
+    controllerRef.current?.abort("user-cancelled");
+    setLoading(false);
+    stopTimers();
   };
 
   const demo = (level: keyof typeof mockReports) => {
@@ -46,17 +115,43 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
   return (
     <>
       <div className={compact ? "" : "scanner-shell"}>
-        <form className="scan-form" onSubmit={submit}>
+        <form className="scan-form" onSubmit={submit} aria-busy={loading}>
           <label htmlFor={inputId}>Public website URL</label>
           <div className="input-row">
-            <div className="url-input"><ScanSearch size={20} /><input id={inputId} value={url} onChange={(event) => setUrl(event.target.value)} placeholder="example.com" autoComplete="url" inputMode="url" /></div>
+            <div className="url-input"><ScanSearch size={20} /><input id={inputId} value={url} onChange={(event) => setUrl(event.target.value)} placeholder="example.com" autoComplete="url" inputMode="url" aria-describedby={statusId} disabled={loading} required spellCheck={false} /></div>
             <button className="button button-primary" disabled={loading} type="submit">{loading ? <LoaderCircle className="spin" size={18} /> : <ArrowRight size={18} />}{loading ? "Analyzing" : "Scan website"}</button>
+            {loading && <button className="button button-secondary scan-cancel" type="button" onClick={cancel}><X size={16} />Cancel</button>}
           </div>
-          {error && <p className="form-error" role="alert">{error}</p>}
+          <div id={statusId} className="scan-status" aria-live="polite">
+            {loading && (
+              <div className="scan-progress">
+                <div className="scan-progress-head"><span><LoaderCircle className="spin" size={15} />{scanStages[stage]}</span><strong>{stage + 1}/{scanStages.length}</strong></div>
+                <div className="scan-progress-track"><span style={{ width: `${((stage + 1) / scanStages.length) * 100}%` }} /></div>
+                {!compact && <p>Most scans finish in under ten seconds. Slow or blocked origins may take longer.</p>}
+              </div>
+            )}
+            {error && (
+              <div className="scan-error" role="alert">
+                <AlertCircle size={18} />
+                <div><strong>Scan could not complete</strong><span>{error}</span><p>{explainScanError(error)}</p></div>
+                <button type="button" onClick={() => void run(url)}><RotateCcw size={14} />Retry</button>
+              </div>
+            )}
+            {!loading && !error && <span className="scan-ready"><Check size={13} />Ready for a bounded public-origin scan</span>}
+          </div>
         </form>
-        {!compact && <div className="demo-row"><span>Explore sample reports:</span><button type="button" onClick={() => demo("low")}><PlayCircle size={14} />Strong baseline</button><button type="button" onClick={() => demo("medium")}><PlayCircle size={14} />Mixed signals</button><button type="button" onClick={() => demo("high")}><PlayCircle size={14} />High exposure</button></div>}
+        {!compact && (
+          <div className="demo-row">
+            <span>Open a clearly labeled sample report</span>
+            {demoProfiles.map((profile) => (
+              <button type="button" onClick={() => demo(profile.key)} key={profile.key}>
+                <PlayCircle size={15} /><span><strong>{profile.label}</strong><small>{profile.detail}</small></span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-      {report && !onResult && <div id="scan-report" className="container report-anchor"><ReportView report={report} /></div>}
+      {report && !onResult && <div id="scan-report" className="report-anchor report-inline standalone-report-shell"><ReportView report={report} /></div>}
     </>
   );
 }

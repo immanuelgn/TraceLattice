@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
 import { Pill, SectionHeading } from "@/components/Primitives";
+import { SCORE_WEIGHTS } from "@/lib/scan/scoring";
 
 export const metadata: Metadata = {
   title: "Methodology",
@@ -8,10 +9,10 @@ export const metadata: Metadata = {
 };
 
 const ledger = [
-  ["Header posture", "35% weight"],
-  ["Cookie hygiene", "20% weight"],
-  ["Third-party exposure", "25% weight"],
-  ["Advanced posture", "20% weight"],
+  ["Header posture", `${SCORE_WEIGHTS.headers * 100}% weight`],
+  ["Cookie hygiene", `${SCORE_WEIGHTS.cookies * 100}% weight`],
+  ["Third-party exposure", `${SCORE_WEIGHTS.exposure * 100}% weight`],
+  ["Advanced posture", `${SCORE_WEIGHTS.advanced * 100}% weight`],
   ["Core headers", "CSP, HSTS, frame protection, nosniff, referrer, permissions"],
   ["Cookie context", "session/security cookies weighted above preference cookies"],
   ["Exposure context", "known trackers and third-party scripts weighted above functional CDNs"],
@@ -66,6 +67,10 @@ export default function MethodologyPage() {
           TraceLattice calculates four component scores: security header posture, cookie hygiene, third-party exposure, and advanced posture. The final score is a weighted bounded snapshot,
           not a universal security verdict. Optional advanced headers such as COOP, CORP, and COEP are shown as evidence but are not treated like missing core controls for every site.
         </p>
+        <div className="method-formula" aria-label="Score formula">
+          <code>round(headers × 0.35 + cookies × 0.20 + exposure × 0.25 + advanced × 0.20)</code>
+          <p>Every component starts at 100. Deterministic deductions are applied only for observed findings, with per-category caps preventing one repeated signal from dominating the result.</p>
+        </div>
         <div className="penalty-grid">{ledger.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div>
         <div className="grade-scale">{[["90-100", "Excellent"], ["80-89", "Good"], ["70-79", "Mixed signals"], ["60-69", "Context required"], ["0-59", "Weak"]].map(([range, label]) => <div key={range}><strong>{range}</strong><span>score band</span><small>{label}</small></div>)}</div>
       </section>
@@ -74,6 +79,14 @@ export default function MethodologyPage() {
         <p>
           Every score carries limited confidence because TraceLattice does not execute JavaScript, broadly crawl, authenticate, or observe runtime network traffic. A lower score does not
           prove a breach, malicious behavior, or non-compliance. A higher score does not prove safety or compliance. This is an educational static snapshot that helps prioritize manual investigation.
+        </p>
+      </section>
+      <section className="glass content-panel">
+        <Pill tone="green">Reproducibility</Pill>
+        <h2>How to challenge a result</h2>
+        <p>
+          Export the JSON report, inspect each component reason and penalty, then compare the evidence with the target response. The score contains no hidden model call,
+          random weighting, or proprietary external reputation feed. The same normalized inputs produce the same scoring decision.
         </p>
       </section>
     </div>

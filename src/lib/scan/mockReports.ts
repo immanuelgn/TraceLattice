@@ -1,4 +1,5 @@
 import type { ScanReport } from "./types";
+import { calculateWeightedScore, scoreBand } from "./scoring";
 
 const limitations = [
   "Demo data uses a fictional domain and is not a live scan.",
@@ -9,10 +10,10 @@ const limitations = [
 
 function createMock(level: "low" | "medium" | "high"): ScanReport {
   const config = level === "low"
-    ? { domain: "privacygood.example", score: 94, grade: "A" as const, label: "Excellent" as const, third: 2, scripts: 3 }
+    ? { domain: "saas-baseline.example", title: "Modern SaaS baseline", third: 2, scripts: 3 }
     : level === "medium"
-      ? { domain: "balancedsite.example", score: 74, grade: "C" as const, label: "Mixed Static Signals" as const, third: 7, scripts: 12 }
-      : { domain: "trackerheavy.example", score: 38, grade: "F" as const, label: "Weak" as const, third: 16, scripts: 29 };
+      ? { domain: "publisher-mix.example", title: "Content publisher mix", third: 7, scripts: 12 }
+      : { domain: "legacy-portal.example", title: "Legacy portal exposure", third: 16, scripts: 29 };
 
   const risky = level !== "low";
   const headers = [
@@ -55,8 +56,21 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
     { category: "Vulnerability disclosure" as const, name: "security.txt", status: level === "high" ? "missing" as const : "pass" as const, risk: level === "high" ? "medium" as const : "low" as const, explanation: level === "high" ? "No usable security.txt file was found." : "A security.txt file was found.", recommendation: "Publish and maintain vulnerability disclosure contact information." },
     { category: "Page hygiene" as const, name: "Mixed content references", status: "pass" as const, risk: "low" as const, explanation: "No static mixed-content references were found.", recommendation: "Continue keeping static resources HTTPS-only." },
   ];
+  const components = {
+    headers: { value: level === "low" ? 94 : level === "medium" ? 71 : 45, label: level === "low" ? "Strong" as const : level === "medium" ? "Context" as const : "Weak" as const, reasons: risky ? ["Several recommended browser controls were not observed."] : ["Core static header controls look strong."] },
+    cookies: { value: level === "low" ? 100 : level === "medium" ? 94 : 58, label: level === "high" ? "Weak" as const : "Strong" as const, reasons: risky ? ["Cookie attributes deserve contextual review."] : ["No Set-Cookie hygiene issues were observed."] },
+    exposure: { value: level === "low" ? 92 : level === "medium" ? 66 : 28, label: level === "low" ? "Strong" as const : level === "medium" ? "Context" as const : "Weak" as const, reasons: risky ? ["Third-party services expand the observable trust surface."] : ["Low visible third-party exposure."] },
+    advanced: { value: level === "low" ? 92 : level === "medium" ? 82 : 70, label: level === "low" ? "Strong" as const : "Context" as const, reasons: level === "low" ? ["DNS, TLS, disclosure, and page-hygiene checks look strong."] : ["Some DNS or disclosure signals need site context."] },
+  };
+  const score = calculateWeightedScore(components);
+  const band = scoreBand(score);
 
   return {
+    source: {
+      kind: "demo",
+      label: config.title,
+      description: "Illustrative, internally consistent sample data. No external website was contacted.",
+    },
     scanId: `demo-${level}`,
     inputUrl: `https://${config.domain}`,
     normalizedUrl: `https://${config.domain}/`,
@@ -69,25 +83,22 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
     statusCode: 200,
     https: { enabled: true, redirectsToHttps: true, risk: "low", notes: ["Final response used HTTPS."] },
     score: {
-      value: config.score,
-      grade: config.grade,
-      label: config.label,
+      value: score,
+      grade: band.grade,
+      label: band.label,
       confidence: "limited",
       scopeNote: "Demo report: confidence is limited because static analysis does not execute JavaScript.",
       summary: level === "low" ? "Strong controls and limited third-party exposure." : level === "medium" ? "A mixed privacy posture with several gaps to review." : "Broad third-party exposure and multiple missing controls.",
-      topReasons: risky ? ["Missing or weak browser security policies.", "Third-party services expand the observable data-sharing surface.", "Cookie or tracker configuration deserves review."] : ["Strong HTTPS and header coverage.", "No known trackers in static resources.", "Low third-party exposure."],
+      topReasons: risky
+        ? ["Missing or weak browser security policies.", "Third-party services expand the observable data-sharing surface.", "Cookie or tracker configuration deserves review."]
+        : ["Optional cross-origin isolation policies were not observed.", "Runtime and consent-dependent behavior remains outside this static scan.", "Third-party dependencies should still be reviewed during releases."],
       penalties: risky ? [
         { label: "Security headers", points: level === "high" ? 28 : 15, reason: "Several recommended controls were not observed." },
         { label: "Third parties", points: level === "high" ? 22 : 6, reason: "External domains increase the trust surface." },
         { label: "Trackers", points: level === "high" ? 12 : 5, reason: "Known categories were detected in static references." },
       ] : [{ label: "Minor hardening", points: 6, reason: "Optional cross-origin policies were not observed." }],
       positiveNotes: ["HTTPS is enabled.", ...(level === "low" ? ["No known trackers were detected.", "Low third-party exposure."] : [])],
-      components: {
-        headers: { value: level === "low" ? 94 : level === "medium" ? 71 : 45, label: level === "low" ? "Strong" : level === "medium" ? "Context" : "Weak", reasons: risky ? ["Several recommended browser controls were not observed."] : ["Core static header controls look strong."] },
-        cookies: { value: level === "low" ? 100 : level === "medium" ? 94 : 58, label: level === "high" ? "Weak" : "Strong", reasons: risky ? ["Cookie attributes deserve contextual review."] : ["No Set-Cookie hygiene issues were observed."] },
-        exposure: { value: level === "low" ? 92 : level === "medium" ? 66 : 28, label: level === "low" ? "Strong" : level === "medium" ? "Context" : "Weak", reasons: risky ? ["Third-party services expand the observable trust surface."] : ["Low visible third-party exposure."] },
-        advanced: { value: level === "low" ? 92 : level === "medium" ? 82 : 70, label: level === "low" ? "Strong" : "Context", reasons: level === "low" ? ["DNS, TLS, disclosure, and page-hygiene checks look strong."] : ["Some DNS or disclosure signals need site context."] },
-      },
+      components,
     },
     headers,
     cookies: risky ? [{
@@ -107,12 +118,19 @@ function createMock(level: "low" | "medium" | "high"): ScanReport {
     resources: thirdParties.map((item) => ({ type: "script", url: `https://${item.domain}/asset.js`, domain: item.domain, thirdParty: true })),
     inlineScriptCount: level === "high" ? 17 : 4,
     externalScriptCount: config.scripts,
-    recommendations: [
-      "Add or strengthen Content-Security-Policy.",
-      "Reduce non-essential third-party scripts.",
-      "Review cookie scope, retention, and security flags.",
-      "Document third-party processing and complete a manual privacy review.",
-    ],
+    recommendations: level === "low"
+      ? [
+        "Review optional cross-origin isolation headers for application compatibility.",
+        "Continue monitoring certificate and DNS posture.",
+        "Revalidate third-party dependencies during releases.",
+        "Use consented runtime tooling for behavior static analysis cannot observe.",
+      ]
+      : [
+        "Add or strengthen Content-Security-Policy.",
+        "Reduce non-essential third-party scripts.",
+        "Review cookie scope, retention, and security flags.",
+        "Document third-party processing and complete a manual privacy review.",
+      ],
     limitations,
   };
 }

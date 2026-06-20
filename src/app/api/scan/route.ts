@@ -19,6 +19,30 @@ export const maxDuration = 25;
 const MAX_EXTRA_PAGES = 2;
 const SKIP_PATH = /(login|log-in|signin|sign-in|logout|log-out|signout|sign-out|delete|remove|cart|checkout|admin|account|settings|billing)/i;
 
+function errorResponse(message: string, requestId: string, status = 400) {
+  return Response.json(
+    {
+      error: message,
+      requestId,
+      retryable: status === 429 || status >= 500,
+    },
+    {
+      status,
+      headers: {
+        "Cache-Control": "no-store",
+        "X-TraceLattice-Request-Id": requestId,
+      },
+    },
+  );
+}
+
+function statusForError(message: string) {
+  if (/did not respond within/i.test(message)) return 504;
+  if (/could not be reached|temporarily unavailable/i.test(message)) return 502;
+  if (/HTML document|empty response|too large|1\.5 MB/i.test(message)) return 422;
+  return 400;
+}
+
 async function fetchExtraPages(candidates: string[], finalOrigin: string, finalUrl: string) {
   const unique = [...new Set(candidates)]
     .filter((url) => url !== finalUrl)
@@ -40,14 +64,15 @@ async function fetchExtraPages(candidates: string[], finalOrigin: string, finalU
 }
 
 export async function POST(request: NextRequest) {
+  const requestId = crypto.randomUUID();
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "anonymous";
-  if (!rateLimit(ip)) return Response.json({ error: "Scan limit reached. Try again in a few minutes." }, { status: 429 });
+  if (!rateLimit(ip)) return errorResponse("Scan limit reached. Try again in a few minutes.", requestId, 429);
 
   const startedAt = Date.now();
   try {
     const body = await request.json();
     if (typeof body?.url !== "string" || body.url.length > 2_048) {
-      return Response.json({ error: "Provide a valid website URL." }, { status: 400 });
+      return errorResponse("Provide a valid website URL.", requestId);
     }
 
     const normalizedUrl = normalizeUrl(body.url).toString();
@@ -98,6 +123,11 @@ export async function POST(request: NextRequest) {
     });
 
     const report: ScanReport = {
+      source: {
+        kind: "live",
+        label: "Live public-origin scan",
+        description: "Generated from the bounded public signals observed during this request.",
+      },
       scanId: crypto.randomUUID(),
       inputUrl: body.url,
       normalizedUrl,
@@ -134,9 +164,14 @@ export async function POST(request: NextRequest) {
       ],
     };
 
-    return Response.json(report, { headers: { "Cache-Control": "no-store" } });
+    return Response.json(report, {
+      headers: {
+        "Cache-Control": "no-store",
+        "X-TraceLattice-Request-Id": requestId,
+      },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "The website could not be scanned.";
-    return Response.json({ error: message }, { status: 400 });
+    return errorResponse(message, requestId, statusForError(message));
   }
 }

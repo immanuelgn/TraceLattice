@@ -45,7 +45,7 @@ export function HomeScanExperience() {
       <div className="launchpad-heading">
         <span className="product-label"><span />TraceLattice scanner</span>
         <h1>Inspect a public website&apos;s observable security posture.</h1>
-        <p>Start with Standard scan for a fast public check. Turn on Enhanced scan when a site loads most of its content after opening or the first report looks too empty.</p>
+        <p>Start with Standard scan for a fast public check. Use Enhanced scan when you want a fuller look at trackers, ads, forms, or scripts that appear only after the page finishes loading.</p>
       </div>
       <div className="scan-console scan-console-wide">
         <div className="console-header">
@@ -60,7 +60,7 @@ export function HomeScanExperience() {
           <span>Public HTTP/S only</span>
           <span>3 HTML pages max</span>
           <span>No page body retention</span>
-          <span>Enhanced sees loaded pages</span>
+          <span>Enhanced finds more loaded tools</span>
         </div>
         <div className="coverage-list coverage-strip" aria-label="Scanner coverage">
           {coverage.map((item) => <span key={item}><CheckCircle2 size={15} />{item}</span>)}

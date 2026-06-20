@@ -104,7 +104,7 @@ Optional override for testing or provider changes:
 CLOUDFLARE_BROWSER_RENDER_ENDPOINT=https://api.cloudflare.com/client/v4/accounts/{accountId}/browser-rendering/content
 ```
 
-Enhanced scan is useful when a site loads most content after opening or the Standard report looks sparse. It still follows the same safety rules: public HTTP/S only, no credentials, no login, no clicking, no form submission, no consent bypass, and no retained page bodies.
+Enhanced scan is useful when you want a fuller look at trackers, ads, forms, or scripts that appear only after the page finishes loading, or when the Standard report looks sparse. It still follows the same safety rules: public HTTP/S only, no credentials, no login, no clicking, no form submission, no consent bypass, and no retained page bodies.
 
 ## Testing
 

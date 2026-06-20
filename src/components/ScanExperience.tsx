@@ -16,8 +16,8 @@ const standardScanStages = [
 const enhancedScanStages = [
   "Checking the website address",
   "Reading the public response",
-  "Opening the page in a safe cloud browser",
-  "Checking what appears after the page loads",
+  "Loading the page in a safe cloud browser",
+  "Checking what appears after the page finishes loading",
   "Building the evidence-led report",
 ];
 
@@ -142,7 +142,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
               <label htmlFor={enhancedId}>
                 <input id={enhancedId} type="checkbox" checked={enhanced} onChange={(event) => setEnhanced(event.target.checked)} disabled={loading} />
                 <span className="scan-mode-icon"><Sparkles size={16} /></span>
-                <span><strong>Enhanced scan</strong><small>Use this for modern sites that load content after opening. It opens the public page in a safe cloud browser first, so it can catch more loaded scripts and trackers. It may take longer. No login, clicks, forms, or personal browser data.</small></span>
+                <span><strong>Enhanced scan</strong><small>Use this when you want the fuller scan. Some sites add trackers, ads, forms, or scripts only after the page finishes loading. Enhanced scan checks that loaded page too. It may take longer. No login, clicks, forms, or personal browser data.</small></span>
               </label>
             </div>
           )}
@@ -151,7 +151,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
               <div className="scan-progress">
                 <div className="scan-progress-head"><span><LoaderCircle className="spin" size={15} />{stages[stage]}</span><strong>{stage + 1}/{stages.length}</strong></div>
                 <div className="scan-progress-track"><span style={{ width: `${((stage + 1) / stages.length) * 100}%` }} /></div>
-                {!compact && <p>{enhanced ? "Enhanced scan can find more on pages that load after opening, but it may take longer than Standard scan." : "Most scans finish in under ten seconds. Slow or blocked origins may take longer."}</p>}
+                {!compact && <p>{enhanced ? "Enhanced scan can find more because it checks the page after it finishes loading, but it may take longer than Standard scan." : "Most scans finish in under ten seconds. Slow or blocked origins may take longer."}</p>}
               </div>
             )}
             {error && (

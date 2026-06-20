@@ -60,8 +60,8 @@ export default function AboutPage() {
         <Pill tone="green">Enhanced scan</Pill>
         <h2>When Enhanced scan helps</h2>
         <p>
-          Many modern sites start with a small HTML shell, then JavaScript fills in scripts, images, forms, and trackers after the page opens.
-          Enhanced scan helps in that case: TraceLattice validates the same public URL, asks Cloudflare Browser Rendering to open it once, and parses the rendered HTML returned by Cloudflare with the same local rules.
+          Many modern sites start with a small HTML shell, then JavaScript fills in scripts, images, forms, ads, analytics, and trackers after the page loads.
+          Enhanced scan helps in that case: TraceLattice validates the same public URL, asks Cloudflare Browser Rendering to load the page once in a hosted browser, and parses the rendered HTML returned by Cloudflare with the same local rules.
           It does not use visitor cookies, log in, click, submit forms, bypass consent, or store page bodies.
         </p>
         <p className="muted">

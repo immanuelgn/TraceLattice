@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       source: rendered ? {
         kind: "enhanced",
         label: "Enhanced scan",
-        description: "Opened the public page in a safe cloud browser first, then checked what appeared. No logins, clicks, form submissions, or personal browser data are used.",
+        description: "Checked the page after it loaded in a safe cloud browser, which can reveal trackers, ads, forms, or scripts added after the first response. No logins, clicks, form submissions, or personal browser data are used.",
       } : {
         kind: "live",
         label: "Live public-origin scan",
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
       externalScriptCount: combinedParsed.externalScriptCount,
       recommendations: buildRecommendations(headers, cookies, trackers, thirdParties.length, posture),
       limitations: rendered ? [
-        "Enhanced scan opens the public page once in a safe cloud browser before analysis.",
+        "Enhanced scan checks the page once after it loads in a safe cloud browser before analysis.",
         "No authentication, user cookies, form submission, clicking, consent bypass, or private browsing data is used.",
         "At most two additional same-origin HTML pages are fetched from ordinary links.",
         "Only the page content and resource links returned by the cloud browser are analyzed; full browser network bodies are not collected.",

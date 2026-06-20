@@ -7,17 +7,17 @@ import type { ScanReport } from "@/lib/scan/types";
 import { ReportView } from "./ReportView";
 
 const standardScanStages = [
-  "Validating the public origin",
-  "Fetching bounded HTML",
-  "Inspecting headers, cookies, DNS, and TLS",
+  "Checking the website address",
+  "Reading the public page",
+  "Checking headers, cookies, DNS, and TLS",
   "Building the evidence-led report",
 ];
 
 const enhancedScanStages = [
-  "Validating the public origin",
-  "Fetching public response signals",
-  "Rendering JavaScript in a hosted browser",
-  "Inspecting the rendered page and public records",
+  "Checking the website address",
+  "Reading the public response",
+  "Opening the page in a safe cloud browser",
+  "Checking what appears after the page loads",
   "Building the evidence-led report",
 ];
 
@@ -28,10 +28,10 @@ const demoProfiles = [
 ];
 
 function explainScanError(message: string) {
-  if (/Enhanced scan is not configured/i.test(message)) return "Use Standard scan for now. The site owner needs to add the hosted-browser API key before Enhanced scan can run.";
+  if (/Enhanced scan is not configured/i.test(message)) return "Use Standard scan for now. Enhanced scan needs the site owner to finish the cloud-browser setup.";
   if (/limit reached/i.test(message)) return "This scanner limits repeated requests to protect the public service. Wait a few minutes, then retry.";
-  if (/respond|reached|unavailable|automated requests|provider HTTP|render JavaScript/i.test(message)) return "The origin or hosted browser provider may be slow, offline, or blocking automated requests. Try Standard scan or retry later.";
-  if (/private|reserved|localhost|port|protocol|credentials|public suffix/i.test(message)) return "For safety, TraceLattice accepts only ordinary public HTTP or HTTPS origins on standard ports.";
+  if (/respond|reached|unavailable|automated requests|provider HTTP|render JavaScript/i.test(message)) return "The website or cloud browser may be slow, offline, or blocking automated requests. Try Standard scan or retry later.";
+  if (/private|reserved|localhost|port|protocol|credentials|public suffix/i.test(message)) return "For safety, TraceLattice only scans ordinary public websites.";
   if (/HTML document|response is too large|1\.5 MB/i.test(message)) return "The target did not return a small public HTML page that fits this bounded scanner.";
   return "Review the address and try again. The scanner never bypasses access controls or retries aggressively.";
 }
@@ -142,7 +142,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
               <label htmlFor={enhancedId}>
                 <input id={enhancedId} type="checkbox" checked={enhanced} onChange={(event) => setEnhanced(event.target.checked)} disabled={loading} />
                 <span className="scan-mode-icon"><Sparkles size={16} /></span>
-                <span><strong>Enhanced JavaScript render</strong><small>Use this when a site loads most content after the page opens. It sends only the public URL to a hosted browser; no login, clicking, forms, or personal browser data.</small></span>
+                <span><strong>Enhanced scan</strong><small>Use this for modern sites that load content after opening. It opens the public page in a safe cloud browser first, so it can catch more loaded scripts and trackers. It may take longer. No login, clicks, forms, or personal browser data.</small></span>
               </label>
             </div>
           )}
@@ -151,7 +151,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
               <div className="scan-progress">
                 <div className="scan-progress-head"><span><LoaderCircle className="spin" size={15} />{stages[stage]}</span><strong>{stage + 1}/{stages.length}</strong></div>
                 <div className="scan-progress-track"><span style={{ width: `${((stage + 1) / stages.length) * 100}%` }} /></div>
-                {!compact && <p>{enhanced ? "Enhanced scan can take longer because it waits for a hosted browser to render JavaScript." : "Most scans finish in under ten seconds. Slow or blocked origins may take longer."}</p>}
+                {!compact && <p>{enhanced ? "Enhanced scan can find more on pages that load after opening, but it may take longer than Standard scan." : "Most scans finish in under ten seconds. Slow or blocked origins may take longer."}</p>}
               </div>
             )}
             {error && (
@@ -161,7 +161,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
                 <button type="button" onClick={() => void run(url)}><RotateCcw size={14} />Retry</button>
               </div>
             )}
-            {!loading && !error && <span className="scan-ready"><Check size={13} />Ready for a bounded {enhanced && !compact ? "enhanced" : "standard"} scan</span>}
+            {!loading && !error && <span className="scan-ready"><Check size={13} />Ready for {enhanced && !compact ? "Enhanced" : "Standard"} scan</span>}
           </div>
         </form>
         {!compact && (

@@ -45,22 +45,22 @@ export function HomeScanExperience() {
       <div className="launchpad-heading">
         <span className="product-label"><span />TraceLattice scanner</span>
         <h1>Inspect a public website&apos;s observable security posture.</h1>
-        <p>Run a bounded assessment across headers, cookies, third-party exposure, DNS, and TLS. Turn on Enhanced scan when JavaScript-loaded pages need a hosted-browser render.</p>
+        <p>Start with Standard scan for a fast public check. Turn on Enhanced scan when a site loads most of its content after opening or the first report looks too empty.</p>
       </div>
       <div className="scan-console scan-console-wide">
         <div className="console-header">
           <div>
             <span className="console-eyebrow">New assessment</span>
-            <h2>Analyze a public origin</h2>
+            <h2>Scan a public website</h2>
           </div>
-          <span className="console-mode"><ShieldCheck size={14} />Standard + optional enhanced</span>
+          <span className="console-mode"><ShieldCheck size={14} />Standard scan by default</span>
         </div>
         <UrlScanForm onResult={setReport} />
         <div className="console-foot">
           <span>Public HTTP/S only</span>
           <span>3 HTML pages max</span>
           <span>No page body retention</span>
-          <span>Optional JS render</span>
+          <span>Enhanced sees loaded pages</span>
         </div>
         <div className="coverage-list coverage-strip" aria-label="Scanner coverage">
           {coverage.map((item) => <span key={item}><CheckCircle2 size={15} />{item}</span>)}

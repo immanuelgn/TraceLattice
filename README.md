@@ -17,7 +17,7 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 ## Features
 
 - Standard scan for public origins and up to two same-origin HTML pages
-- Optional Enhanced scan that renders JavaScript once with a hosted browser when Cloudflare credentials are configured
+- Optional Enhanced scan that opens the public page in a hosted browser to inspect content loaded after JavaScript runs
 - Evaluates CSP, HSTS, frame protection, MIME sniffing, referrer policy, permissions policy, and cross-origin controls
 - Reviews `Secure`, `HttpOnly`, and `SameSite` cookie attributes without retaining cookie values
 - Identifies third-party domains, scripts, trackers, forms, mixed content, and supply-chain exposure
@@ -58,7 +58,7 @@ Browser
   -> Normalize and validate target
   -> Resolve DNS and block unsafe destinations
   -> Fetch with controlled redirects
-  -> Optional: render the public page with Cloudflare Browser Rendering
+  -> Optional: open the public page with Cloudflare Browser Rendering and parse the rendered HTML
   -> Parse bounded static or rendered HTML
   -> Analyze headers, cookies, resources, TLS, and DNS
   -> Calculate deterministic scores and recommendations
@@ -104,7 +104,7 @@ Optional override for testing or provider changes:
 CLOUDFLARE_BROWSER_RENDER_ENDPOINT=https://api.cloudflare.com/client/v4/accounts/{accountId}/browser-rendering/content
 ```
 
-Enhanced scan still follows the same safety rules: public HTTP/S only, no credentials, no login, no clicking, no form submission, no consent bypass, and no retained page bodies.
+Enhanced scan is useful when a site loads most content after opening or the Standard report looks sparse. It still follows the same safety rules: public HTTP/S only, no credentials, no login, no clicking, no form submission, no consent bypass, and no retained page bodies.
 
 ## Testing
 

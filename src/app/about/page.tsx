@@ -50,20 +50,22 @@ export default function AboutPage() {
         <Pill tone="cyan">Scope</Pill>
         <h2>What the scanner does</h2>
         <p>
-          Standard scan fetches the requested public page and up to two same-origin HTML pages, then checks headers, cookies, trackers, third-party domains,
-          DNS email-auth records, DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files, mixed content,
-          SRI coverage, reverse-tabnabbing, third-party form actions, and client-side hygiene signals.
+          Standard scan is the fast default. It fetches the requested public page and up to two same-origin HTML pages, then checks headers, cookies, trackers,
+          third-party domains, DNS email-auth records, DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files,
+          mixed content, SRI coverage, reverse-tabnabbing, third-party form actions, and client-side hygiene signals.
         </p>
       </section>
 
       <section className="glass content-panel">
         <Pill tone="green">Enhanced scan</Pill>
-        <h2>Optional JavaScript rendering</h2>
+        <h2>When Enhanced scan helps</h2>
         <p>
-          When enabled, TraceLattice first validates the same public URL, then asks Cloudflare Browser Rendering to load it once and return rendered HTML.
-          The app parses that rendered page with the same local rules. It does not use visitor cookies, log in, click, submit forms, bypass consent, or store page bodies.
+          Many modern sites start with a small HTML shell, then JavaScript fills in scripts, images, forms, and trackers after the page opens.
+          Enhanced scan helps in that case: TraceLattice validates the same public URL, asks Cloudflare Browser Rendering to open it once, and parses the rendered HTML returned by Cloudflare with the same local rules.
+          It does not use visitor cookies, log in, click, submit forms, bypass consent, or store page bodies.
         </p>
         <p className="muted">
+          Technical note: Cloudflare Browser Rendering is the hosted browser service; rendered HTML means the page after JavaScript has had a chance to change it.
           Configure <code>CLOUDFLARE_ACCOUNT_ID</code> and <code>CLOUDFLARE_API_TOKEN</code> to enable it. Without those keys, Standard scan still works.
         </p>
       </section>

@@ -148,8 +148,8 @@ export async function POST(request: NextRequest) {
     const report: ScanReport = {
       source: rendered ? {
         kind: "enhanced",
-        label: "Enhanced hosted-browser scan",
-        description: "Generated from public response signals plus a Cloudflare hosted-browser render of the page. No logins, clicks, form submissions, or user cookies are used.",
+        label: "Enhanced scan",
+        description: "Opened the public page in a safe cloud browser first, then checked what appeared. No logins, clicks, form submissions, or personal browser data are used.",
       } : {
         kind: "live",
         label: "Live public-origin scan",
@@ -182,10 +182,10 @@ export async function POST(request: NextRequest) {
       externalScriptCount: combinedParsed.externalScriptCount,
       recommendations: buildRecommendations(headers, cookies, trackers, thirdParties.length, posture),
       limitations: rendered ? [
-        "Enhanced mode renders the public page once through a hosted browser API before analysis.",
+        "Enhanced scan opens the public page once in a safe cloud browser before analysis.",
         "No authentication, user cookies, form submission, clicking, consent bypass, or private browsing data is used.",
         "At most two additional same-origin HTML pages are fetched from ordinary links.",
-        "Only rendered HTML/resource references returned by the provider are analyzed; full browser network bodies are not collected.",
+        "Only the page content and resource links returned by the cloud browser are analyzed; full browser network bodies are not collected.",
         "Consent-dependent, authenticated, delayed, regional, or interaction-only behavior may still be missed.",
         "No broad crawling, exploitation, brute force, or compliance determination is performed.",
         "Scores are deterministic educational heuristics, not legal or audit conclusions.",

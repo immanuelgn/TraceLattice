@@ -2,6 +2,11 @@
   "name": "tracelattice",
   "version": "1.1.0",
   "private": true,
+  "homepage": "https://tracelattice.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/immanuelgn/TraceLattice.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

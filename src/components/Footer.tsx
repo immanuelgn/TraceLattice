@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { BriefcaseBusiness, Code2 } from "lucide-react";
 import { BrandMark } from "./BrandMark";
 
@@ -16,8 +16,8 @@ export function Footer() {
           <Link href="/about">About</Link>
         </div>
         <div className="footer-socials" aria-label="Immanuel Gnanaseelan profiles">
-          <a href="https://github.com/immanuelgn" target="_blank" rel="noopener noreferrer" aria-label="Immanuel Gnanaseelan on GitHub">
-            <Code2 size={15} /> GitHub
+          <a href="https://github.com/immanuelgn/TraceLattice" target="_blank" rel="noopener noreferrer" aria-label="TraceLattice source code on GitHub">
+            <Code2 size={15} /> Source code
           </a>
           <a href="https://www.linkedin.com/in/immanuelgnanaseelan/" target="_blank" rel="noopener noreferrer" aria-label="Immanuel Gnanaseelan on LinkedIn">
             <BriefcaseBusiness size={15} /> LinkedIn

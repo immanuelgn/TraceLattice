@@ -2,7 +2,7 @@
 
 TraceLattice is a defensive web security posture scanner for public websites. It runs bounded scans of public HTTP/S origins and turns observable headers, cookies, trackers, DNS, TLS, and resource signals into an explainable report.
 
-[Live Demo](https://tracelattice.vercel.app)
+[Live Demo](https://tracelattice.vercel.app) | [Source Code](https://github.com/immanuelgn/TraceLattice)
 
 ![TraceLattice report interface](docs/tracelattice-report.png)
 

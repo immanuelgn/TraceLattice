@@ -1,15 +1,23 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
-import { AlertCircle, ArrowRight, Check, LoaderCircle, PlayCircle, RotateCcw, ScanSearch, X } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, LoaderCircle, PlayCircle, RotateCcw, ScanSearch, Sparkles, X } from "lucide-react";
 import { mockReports } from "@/lib/scan/mockReports";
 import type { ScanReport } from "@/lib/scan/types";
 import { ReportView } from "./ReportView";
 
-const scanStages = [
+const standardScanStages = [
   "Validating the public origin",
   "Fetching bounded HTML",
   "Inspecting headers, cookies, DNS, and TLS",
+  "Building the evidence-led report",
+];
+
+const enhancedScanStages = [
+  "Validating the public origin",
+  "Fetching public response signals",
+  "Rendering JavaScript in a hosted browser",
+  "Inspecting the rendered page and public records",
   "Building the evidence-led report",
 ];
 
@@ -20,8 +28,9 @@ const demoProfiles = [
 ];
 
 function explainScanError(message: string) {
+  if (/Enhanced scan is not configured/i.test(message)) return "Use Standard scan for now. The site owner needs to add the hosted-browser API key before Enhanced scan can run.";
   if (/limit reached/i.test(message)) return "This scanner limits repeated requests to protect the public service. Wait a few minutes, then retry.";
-  if (/respond|reached|unavailable|automated requests/i.test(message)) return "The origin may be slow, offline, or blocking automated requests. Confirm the address or try again later.";
+  if (/respond|reached|unavailable|automated requests|provider HTTP|render JavaScript/i.test(message)) return "The origin or hosted browser provider may be slow, offline, or blocking automated requests. Try Standard scan or retry later.";
   if (/private|reserved|localhost|port|protocol|credentials|public suffix/i.test(message)) return "For safety, TraceLattice accepts only ordinary public HTTP or HTTPS origins on standard ports.";
   if (/HTML document|response is too large|1\.5 MB/i.test(message)) return "The target did not return a small public HTML page that fits this bounded scanner.";
   return "Review the address and try again. The scanner never bypasses access controls or retries aggressively.";
@@ -30,7 +39,9 @@ function explainScanError(message: string) {
 export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; onResult?: (report: ScanReport) => void }) {
   const inputId = useId();
   const statusId = `${inputId}-status`;
+  const enhancedId = `${inputId}-enhanced`;
   const [url, setUrl] = useState("");
+  const [enhanced, setEnhanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [report, setReport] = useState<ScanReport | null>(null);
@@ -49,6 +60,8 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
   }, []);
 
   const run = async (value: string) => {
+    const useEnhanced = enhanced && !compact;
+    const stages = useEnhanced ? enhancedScanStages : standardScanStages;
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -57,22 +70,22 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
     setStage(0);
     stopTimers();
     stageTimerRef.current = setInterval(() => {
-      setStage((current) => Math.min(scanStages.length - 1, current + 1));
+      setStage((current) => Math.min(stages.length - 1, current + 1));
     }, 2200);
-    const timeout = setTimeout(() => controller.abort("client-timeout"), 30_000);
+    const timeout = setTimeout(() => controller.abort("client-timeout"), useEnhanced ? 45_000 : 30_000);
 
     try {
       const response = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: value }),
+        body: JSON.stringify({ url: value, mode: useEnhanced ? "enhanced" : "standard" }),
         signal: controller.signal,
       });
       const data = await response.json().catch(() => null) as ScanReport | { error?: string } | null;
       if (!response.ok || !data || "error" in data) {
         throw new Error(data && "error" in data && data.error ? data.error : "The website could not be scanned.");
       }
-      setStage(scanStages.length - 1);
+      setStage(stages.length - 1);
       setReport(data as ScanReport);
       onResult?.(data as ScanReport);
       setTimeout(() => document.getElementById("scan-report")?.scrollIntoView({ behavior: "smooth" }), 80);
@@ -80,7 +93,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
       if (controller.signal.aborted && controller.signal.reason !== "client-timeout") return;
       setError(
         controller.signal.reason === "client-timeout"
-          ? "The scan exceeded the 30-second browser wait limit."
+          ? `The scan exceeded the ${useEnhanced ? "45" : "30"}-second browser wait limit.`
           : err instanceof Error
             ? err.message
             : "The website could not be scanned.",
@@ -112,6 +125,8 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
     setTimeout(() => document.getElementById("scan-report")?.scrollIntoView({ behavior: "smooth" }), 80);
   };
 
+  const stages = enhanced && !compact ? enhancedScanStages : standardScanStages;
+
   return (
     <>
       <div className={compact ? "" : "scanner-shell"}>
@@ -119,15 +134,24 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
           <label htmlFor={inputId}>Public website URL</label>
           <div className="input-row">
             <div className="url-input"><ScanSearch size={20} /><input id={inputId} value={url} onChange={(event) => setUrl(event.target.value)} placeholder="example.com" autoComplete="url" inputMode="url" aria-describedby={statusId} disabled={loading} required spellCheck={false} /></div>
-            <button className="button button-primary" disabled={loading} type="submit">{loading ? <LoaderCircle className="spin" size={18} /> : <ArrowRight size={18} />}{loading ? "Analyzing" : "Scan website"}</button>
+            <button className="button button-primary" disabled={loading} type="submit">{loading ? <LoaderCircle className="spin" size={18} /> : <ArrowRight size={18} />}{loading ? "Analyzing" : enhanced && !compact ? "Enhanced scan" : "Scan website"}</button>
             {loading && <button className="button button-secondary scan-cancel" type="button" onClick={cancel}><X size={16} />Cancel</button>}
           </div>
+          {!compact && (
+            <div className={`scan-mode-choice ${enhanced ? "is-enhanced" : ""}`}>
+              <label htmlFor={enhancedId}>
+                <input id={enhancedId} type="checkbox" checked={enhanced} onChange={(event) => setEnhanced(event.target.checked)} disabled={loading} />
+                <span className="scan-mode-icon"><Sparkles size={16} /></span>
+                <span><strong>Enhanced JavaScript render</strong><small>Use this when a site loads most content after the page opens. It sends only the public URL to a hosted browser; no login, clicking, forms, or personal browser data.</small></span>
+              </label>
+            </div>
+          )}
           <div id={statusId} className="scan-status" aria-live="polite">
             {loading && (
               <div className="scan-progress">
-                <div className="scan-progress-head"><span><LoaderCircle className="spin" size={15} />{scanStages[stage]}</span><strong>{stage + 1}/{scanStages.length}</strong></div>
-                <div className="scan-progress-track"><span style={{ width: `${((stage + 1) / scanStages.length) * 100}%` }} /></div>
-                {!compact && <p>Most scans finish in under ten seconds. Slow or blocked origins may take longer.</p>}
+                <div className="scan-progress-head"><span><LoaderCircle className="spin" size={15} />{stages[stage]}</span><strong>{stage + 1}/{stages.length}</strong></div>
+                <div className="scan-progress-track"><span style={{ width: `${((stage + 1) / stages.length) * 100}%` }} /></div>
+                {!compact && <p>{enhanced ? "Enhanced scan can take longer because it waits for a hosted browser to render JavaScript." : "Most scans finish in under ten seconds. Slow or blocked origins may take longer."}</p>}
               </div>
             )}
             {error && (
@@ -137,7 +161,7 @@ export function UrlScanForm({ compact = false, onResult }: { compact?: boolean; 
                 <button type="button" onClick={() => void run(url)}><RotateCcw size={14} />Retry</button>
               </div>
             )}
-            {!loading && !error && <span className="scan-ready"><Check size={13} />Ready for a bounded public-origin scan</span>}
+            {!loading && !error && <span className="scan-ready"><Check size={13} />Ready for a bounded {enhanced && !compact ? "enhanced" : "standard"} scan</span>}
           </div>
         </form>
         {!compact && (

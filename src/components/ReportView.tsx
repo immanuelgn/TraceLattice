@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertTriangle, Braces, Check, ChevronDown, Clipboard, Cookie, Download, ExternalLink, FileCheck2, FlaskConical, Globe2, Info, LockKeyhole, Network, Radar, Save, ShieldCheck, Sigma, Telescope, Timer } from "lucide-react";
+import { AlertTriangle, Braces, Check, ChevronDown, Clipboard, Cookie, Download, ExternalLink, FileCheck2, FlaskConical, Globe2, Info, LockKeyhole, Network, Radar, Save, ShieldCheck, Sigma, Sparkles, Telescope, Timer } from "lucide-react";
 import { SCORE_WEIGHTS } from "@/lib/scan/scoring";
 import type { ScanReport } from "@/lib/scan/types";
 import { saveRecentScan } from "@/lib/scan/storage";
@@ -30,6 +30,8 @@ async function copyText(value: string) {
 export function ReportView({ report }: { report: ScanReport }) {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
+  const isDemo = report.source.kind === "demo";
+  const isEnhanced = report.source.kind === "enhanced";
   const cookieIssues = report.cookies.filter((cookie) => cookie.issues.length).length;
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
@@ -52,7 +54,7 @@ export function ReportView({ report }: { report: ScanReport }) {
 
   const copySummary = async () => {
     try {
-      await copyText(`${report.domain} scored ${report.score.value}/100 (${report.score.label}) as an observed static posture score, not a full security ranking. Header posture ${report.score.components.headers.value}/100, cookie hygiene ${report.score.components.cookies.value}/100, exposure ${report.score.components.exposure.value}/100, advanced posture ${report.score.components.advanced.value}/100. ${report.trackers.length} known tracker(s), ${cookieIssues} cookie issue(s), and ${report.thirdParties.length} third-party domain(s) were observed.`);
+      await copyText(`${report.domain} scored ${report.score.value}/100 (${report.score.label}) as an observed posture score from ${report.source.label.toLowerCase()}, not a full security ranking. Header posture ${report.score.components.headers.value}/100, cookie hygiene ${report.score.components.cookies.value}/100, exposure ${report.score.components.exposure.value}/100, advanced posture ${report.score.components.advanced.value}/100. ${report.trackers.length} known tracker(s), ${cookieIssues} cookie issue(s), and ${report.thirdParties.length} third-party domain(s) were observed.`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -71,13 +73,13 @@ export function ReportView({ report }: { report: ScanReport }) {
 
   return (
     <div className="report-stack">
-      <div className={`report-provenance ${report.source.kind === "demo" ? "is-demo" : "is-live"}`}>
-        {report.source.kind === "demo" ? <FlaskConical size={17} /> : <FileCheck2 size={17} />}
+      <div className={`report-provenance ${isDemo ? "is-demo" : isEnhanced ? "is-enhanced" : "is-live"}`}>
+        {isDemo ? <FlaskConical size={17} /> : isEnhanced ? <Sparkles size={17} /> : <FileCheck2 size={17} />}
         <div><strong>{report.source.label}</strong><span>{report.source.description}</span></div>
       </div>
       <section className="glass report-hero">
         <div>
-          <div className="report-kicker"><Pill tone="violet">Static posture report</Pill><span>{new Date(report.scannedAt).toLocaleString()}</span></div>
+          <div className="report-kicker"><Pill tone="violet">{isEnhanced ? "Enhanced posture report" : "Static posture report"}</Pill><span>{new Date(report.scannedAt).toLocaleString()}</span></div>
           <h1>{report.domain}</h1>
           <p className="mono">{report.finalUrl}</p>
           <p>{report.score.summary}</p>
@@ -96,7 +98,7 @@ export function ReportView({ report }: { report: ScanReport }) {
         <div className="score-block">
           <ScoreRing score={report.score.value} />
           <Pill tone={report.score.value >= 80 ? "green" : report.score.value >= 60 ? "amber" : "red"}>{report.score.label}</Pill>
-          <span className="confidence-label">Observed static posture</span>
+          <span className="confidence-label">{isEnhanced ? "Observed enhanced posture" : "Observed static posture"}</span>
         </div>
       </section>
 
@@ -128,14 +130,14 @@ export function ReportView({ report }: { report: ScanReport }) {
           {scoreCalculation.map((item, index) => (
             <div className="formula-term" key={item.key}>
               <span>{item.name}</span>
-              <strong>{item.value} × {Math.round(item.weight * 100)}%</strong>
+              <strong>{item.value} x {Math.round(item.weight * 100)}%</strong>
               <small>{item.contribution.toFixed(1)} points</small>
               {index < scoreCalculation.length - 1 && <b aria-hidden="true">+</b>}
             </div>
           ))}
           <div className="formula-total">
             <span>Rounded total</span>
-            <strong>{scoreCalculation.reduce((total, item) => total + item.contribution, 0).toFixed(1)} → {report.score.value}</strong>
+            <strong>{scoreCalculation.reduce((total, item) => total + item.contribution, 0).toFixed(1)} -&gt; {report.score.value}</strong>
           </div>
         </div>
         <p>Each component begins at 100 and loses points only for observed, documented signals. Optional context checks are not treated like universal requirements.</p>
@@ -146,7 +148,7 @@ export function ReportView({ report }: { report: ScanReport }) {
         <article className="glass panel">
           <div className="panel-title"><div><span className="eyebrow">What matters</span><h2>Priority findings</h2></div><AlertTriangle /></div>
           <div className="risk-list">
-            {(report.score.topReasons.length ? report.score.topReasons : ["No material static penalties were observed. Runtime behavior remains untested."]).map((reason, index) => (
+            {(report.score.topReasons.length ? report.score.topReasons : ["No material penalties were observed. Runtime behavior may still need manual review."]).map((reason, index) => (
               <div key={reason}><span>0{index + 1}</span><p>{reason}</p></div>
             ))}
           </div>
@@ -177,7 +179,7 @@ export function ReportView({ report }: { report: ScanReport }) {
             <article className="panel">
               <div className="panel-title"><div><span className="eyebrow">Score ledger</span><h2>Observed penalties</h2></div><Braces /></div>
               <div className="score-bars">
-                {report.score.penalties.length ? report.score.penalties.map((item) => <div key={item.label}><div><span>{item.label}</span><strong>-{item.points}</strong></div><div className="bar"><span style={{ width: `${Math.min(100, item.points * 4)}%` }} /></div></div>) : <p className="muted">No static penalties were generated.</p>}
+                {report.score.penalties.length ? report.score.penalties.map((item) => <div key={item.label}><div><span>{item.label}</span><strong>-{item.points}</strong></div><div className="bar"><span style={{ width: `${Math.min(100, item.points * 4)}%` }} /></div></div>) : <p className="muted">No penalties were generated.</p>}
               </div>
             </article>
             <article className="panel">
@@ -198,7 +200,7 @@ export function ReportView({ report }: { report: ScanReport }) {
 
           <section className="panel evidence-section">
             <div className="panel-title"><div><span className="eyebrow">Coverage</span><h2>Inspected HTML pages</h2></div><Globe2 /></div>
-            <div className="domain-list">{report.inspectedUrls.map((url, index) => <div key={`${url}-${index}`}><div><strong>Fetched</strong><span className="mono">{url}</span></div><RiskBadge risk="low" /></div>)}</div>
+            <div className="domain-list">{report.inspectedUrls.map((url, index) => <div key={`${url}-${index}`}><div><strong>{isEnhanced && index === 0 ? "Rendered" : "Fetched"}</strong><span className="mono">{url}</span></div><RiskBadge risk="low" /></div>)}</div>
           </section>
 
           <section className="report-grid evidence-section">
@@ -208,7 +210,7 @@ export function ReportView({ report }: { report: ScanReport }) {
             </article>
             <article className="panel">
               <div className="panel-title"><div><span className="eyebrow">Tracker signals</span><h2>Known categories</h2></div><Radar /></div>
-              {report.trackers.length ? <div className="domain-list">{report.trackers.map((tracker, index) => <div key={`${tracker.domain}-${index}`}><div><strong>{tracker.category}</strong><span className="mono">{tracker.domain}</span></div><RiskBadge risk={tracker.risk} /></div>)}</div> : <p className="muted">No known tracker patterns were found in static references.</p>}
+              {report.trackers.length ? <div className="domain-list">{report.trackers.map((tracker, index) => <div key={`${tracker.domain}-${index}`}><div><strong>{tracker.category}</strong><span className="mono">{tracker.domain}</span></div><RiskBadge risk={tracker.risk} /></div>)}</div> : <p className="muted">No known tracker patterns were found in observed references.</p>}
             </article>
           </section>
 

@@ -1,8 +1,7 @@
-"use client";
+﻿"use client";
 
-import Link from "next/link";
 import { useState } from "react";
-import { Activity, ArrowRight, CheckCircle2, RotateCcw, ShieldCheck } from "lucide-react";
+import { CheckCircle2, RotateCcw, ShieldCheck } from "lucide-react";
 import type { ScanReport } from "@/lib/scan/types";
 import { ReportView } from "./ReportView";
 import { UrlScanForm } from "./ScanExperience";
@@ -46,7 +45,7 @@ export function HomeScanExperience() {
       <div className="launchpad-heading">
         <span className="product-label"><span />TraceLattice scanner</span>
         <h1>Inspect a public website&apos;s observable security posture.</h1>
-        <p>Run a bounded, passive assessment across headers, cookies, third-party exposure, DNS, and TLS signals.</p>
+        <p>Run a bounded assessment across headers, cookies, third-party exposure, DNS, and TLS. Turn on Enhanced scan when JavaScript-loaded pages need a hosted-browser render.</p>
       </div>
       <div className="scan-console scan-console-wide">
         <div className="console-header">
@@ -54,22 +53,19 @@ export function HomeScanExperience() {
             <span className="console-eyebrow">New assessment</span>
             <h2>Analyze a public origin</h2>
           </div>
-          <span className="console-mode"><ShieldCheck size={14} />Passive</span>
+          <span className="console-mode"><ShieldCheck size={14} />Standard + optional enhanced</span>
         </div>
         <UrlScanForm onResult={setReport} />
         <div className="console-foot">
           <span>Public HTTP/S only</span>
           <span>3 HTML pages max</span>
           <span>No page body retention</span>
+          <span>Optional JS render</span>
         </div>
         <div className="coverage-list coverage-strip" aria-label="Scanner coverage">
           {coverage.map((item) => <span key={item}><CheckCircle2 size={15} />{item}</span>)}
         </div>
       </div>
-      <Link className="deep-scan-callout" href="/deep-scan">
-        <span><Activity size={18} /><span><strong>Need runtime evidence?</strong><small>Run the local Playwright scanner to observe JavaScript-loaded requests, trackers, storage, and WebSockets.</small></span></span>
-        <ArrowRight size={18} />
-      </Link>
     </section>
   );
 }

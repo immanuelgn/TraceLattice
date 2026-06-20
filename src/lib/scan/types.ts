@@ -1,4 +1,4 @@
-export type Risk = "low" | "medium" | "high";
+﻿export type Risk = "low" | "medium" | "high";
 
 export interface HeaderFinding {
   name: string;
@@ -81,7 +81,7 @@ export interface PostureFinding {
 
 export interface ScanReport {
   source: {
-    kind: "live" | "demo";
+    kind: "live" | "enhanced" | "demo";
     label: string;
     description: string;
   };

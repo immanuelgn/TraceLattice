@@ -1,14 +1,23 @@
-# TraceLattice
+﻿# TraceLattice
 
-TraceLattice is a defensive web security posture scanner for public websites. It combines a hosted passive scanner with a local Playwright runtime scanner for JavaScript-loaded requests, trackers, cookies, browser storage, and WebSockets.
+TraceLattice is a defensive web security posture scanner for public websites. It runs bounded scans of public HTTP/S origins and turns observable headers, cookies, trackers, DNS, TLS, and resource signals into an explainable report.
 
 [Live Demo](https://tracelattice.vercel.app)
 
 ![TraceLattice report interface](docs/tracelattice-report.png)
 
+## Portfolio Highlights
+
+- Built a production-style Next.js 16 App Router application with typed API routes, deterministic scoring, and responsive report UX
+- Implemented SSRF-aware URL validation, DNS/IP blocking, redirect validation, response caps, timeouts, and rate limiting
+- Added optional free-tier hosted-browser rendering for JavaScript-populated pages through Cloudflare Browser Rendering
+- Designed transparent evidence views: score arithmetic, headers, cookies, trackers, third parties, DNS/TLS posture, limitations, JSON export, and local history
+- Wrote focused tests for URL safety, private IP blocking, headers, cookies, trackers, third parties, scoring, report validation, and demo consistency
+
 ## Features
 
-- Scans a public origin and up to two same-origin HTML pages
+- Standard scan for public origins and up to two same-origin HTML pages
+- Optional Enhanced scan that renders JavaScript once with a hosted browser when Cloudflare credentials are configured
 - Evaluates CSP, HSTS, frame protection, MIME sniffing, referrer policy, permissions policy, and cross-origin controls
 - Reviews `Secure`, `HttpOnly`, and `SameSite` cookie attributes without retaining cookie values
 - Identifies third-party domains, scripts, trackers, forms, mixed content, and supply-chain exposure
@@ -16,7 +25,6 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 - Produces deterministic component scores with visible deductions and weighted calculations
 - Supports JSON export, summary copy, side-by-side comparison, and browser-local scan history
 - Includes responsive loading, cancellation, timeout, validation, rate-limit, and failure states
-- Runs an optional local Chromium scan that opens its private runtime report in the web interface
 
 ## Tech Stack
 
@@ -26,8 +34,8 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 - Node.js
 - Tailwind CSS
 - Vitest
-- Playwright
 - Vercel Functions
+- Cloudflare Browser Rendering (optional Enhanced scan)
 
 ## Security Engineering
 
@@ -38,8 +46,9 @@ TraceLattice treats every submitted URL and redirect as untrusted.
 - Resolves and validates IPv4 and IPv6 addresses before requests
 - Blocks private, reserved, loopback, link-local, multicast, carrier-grade NAT, and cloud metadata ranges
 - Revalidates every redirect destination
-- Limits redirects, execution time, response size, pages, and parsed resources
-- Keeps fetched HTML in memory only and returns user-safe API errors
+- Limits redirects, execution time, response size, pages, parsed resources, and hosted-browser waits
+- Sends only the public URL to the hosted browser provider in Enhanced scan
+- Keeps fetched and rendered HTML in memory only and returns user-safe API errors
 
 ## Architecture
 
@@ -49,16 +58,11 @@ Browser
   -> Normalize and validate target
   -> Resolve DNS and block unsafe destinations
   -> Fetch with controlled redirects
-  -> Parse bounded static HTML
+  -> Optional: render the public page with Cloudflare Browser Rendering
+  -> Parse bounded static or rendered HTML
   -> Analyze headers, cookies, resources, TLS, and DNS
   -> Calculate deterministic scores and recommendations
   -> Return a typed ScanReport
-
-Local CLI
-  -> Launch isolated Chromium
-  -> Validate every HTTP/S destination
-  -> Observe runtime network and browser state
-  -> Save JSON and open /deep-scan with a compressed URL fragment
 ```
 
 The final score is calculated from four components:
@@ -85,19 +89,22 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Local Runtime Scan
+## Optional Enhanced Scan Setup
+
+Standard scan works without external services. To enable Enhanced scan for JavaScript-rendered pages, create a Cloudflare API token with Browser Rendering access and set:
 
 ```bash
-npm run deep-scan -- https://example.com
+CLOUDFLARE_ACCOUNT_ID=your_account_id
+CLOUDFLARE_API_TOKEN=your_token
 ```
 
-The command uses installed Chrome when available. To install Playwright Chromium:
+Optional override for testing or provider changes:
 
 ```bash
-npm run deep-scan:install
+CLOUDFLARE_BROWSER_RENDER_ENDPOINT=https://api.cloudflare.com/client/v4/accounts/{accountId}/browser-rendering/content
 ```
 
-Every scan writes a JSON report. Ordinary reports are compressed into the URL fragment and opened at `/deep-scan`; URL fragments are not sent to the web server. Larger reports can be imported from the generated JSON file.
+Enhanced scan still follows the same safety rules: public HTTP/S only, no credentials, no login, no clicking, no form submission, no consent bypass, and no retained page bodies.
 
 ## Testing
 
@@ -112,10 +119,10 @@ The test suite covers URL validation, private IP blocking, header analysis, cook
 
 ## Limitations
 
-- Static analysis only; target JavaScript is not executed
-- No authentication, form submission, exploitation, or broad crawling
-- Runtime, consent-gated, authenticated, and region-specific behavior may not be visible
-- The local runtime scan observes one page load and a bounded settling window; it does not click consent dialogs or authenticate
+- Standard scan does not execute target JavaScript
+- Enhanced scan renders JavaScript once through a hosted browser API, but does not capture full browser network bodies or interaction-only behavior
+- No authentication, form submission, exploitation, consent bypass, or broad crawling
+- Runtime, consent-gated, authenticated, delayed, and region-specific behavior may not be visible
 - Scores are evidence-based heuristics, not compliance certifications or vulnerability assessments
 - DNS validation does not provide connection-time IP pinning against DNS rebinding
 

@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, Braces, CheckCircle2, Gauge, LockKeyhole, ServerCog, ShieldCheck } from "lucide-react";
+import { Braces, CheckCircle2, Gauge, LockKeyhole, ServerCog, Sparkles } from "lucide-react";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
 import { Pill, SectionHeading } from "@/components/Primitives";
 
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   const decisions = [
-    [LockKeyhole, "SSRF-aware fetching", "Public DNS and IP ranges are validated before the first request and again at every redirect."],
-    [Gauge, "Bounded execution", "Time, redirects, response bytes, pages, and resources are capped for predictable serverless behavior."],
-    [Braces, "Deterministic analysis", "The report is generated from typed local rules and transparent weights, with no opaque model call."],
-    [ServerCog, "Minimal infrastructure", "The production version needs no database, paid API, background queue, or retained page content."],
+    [LockKeyhole, "SSRF-aware fetching", "Public DNS and IP ranges are validated before requests and again at every redirect."],
+    [Gauge, "Bounded execution", "Time, redirects, response bytes, pages, resources, and hosted-browser waits are capped."],
+    [Braces, "Deterministic analysis", "Reports come from typed local rules and visible weights, with no opaque scoring model."],
+    [ServerCog, "Free-tier friendly", "Standard scan needs no paid API. Enhanced scan is optional and only runs when Cloudflare credentials are configured."],
   ] as const;
 
   return (
@@ -22,20 +22,20 @@ export default function AboutPage() {
       <SectionHeading
         eyebrow="Defensive scanner"
         title="Bounded web posture analysis without exploitation."
-        copy="TraceLattice turns public web, DNS, TLS, cookie, and static resource signals into an explainable security posture report."
+        copy="TraceLattice turns public web, DNS, TLS, cookie, and resource signals into an explainable security posture report."
       />
 
       <section className="glass about-hero">
         <div>
           <Pill tone="violet">Why it exists</Pill>
-          <h2>Useful security signals are often visible before runtime testing begins.</h2>
+          <h2>Useful security signals are visible before invasive testing begins.</h2>
           <p>
-            TraceLattice collects safe public signals from a target origin, applies transparent scoring, and shows the evidence behind each result without running payloads,
-            logging in, or making compliance claims.
+            TraceLattice collects safe public signals, applies transparent scoring, and shows the evidence behind each result without running payloads,
+            logging in, submitting forms, or making compliance claims.
           </p>
         </div>
         <div className="stat-stack">
-          <span><strong>2</strong> complementary scan modes</span>
+          <span><strong>2</strong> scan depths</span>
           <span><strong>3</strong> HTML pages max</span>
           <span><strong>0</strong> retained page bodies</span>
         </div>
@@ -50,26 +50,28 @@ export default function AboutPage() {
         <Pill tone="cyan">Scope</Pill>
         <h2>What the scanner does</h2>
         <p>
-          Each scan fetches the requested public page and up to two same-origin HTML pages discovered from ordinary links. It also checks DNS email-auth records,
-          DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files, mixed-content references, SRI coverage,
-          reverse-tabnabbing signals, third-party form actions, cookies, headers, trackers, and third-party domains.
+          Standard scan fetches the requested public page and up to two same-origin HTML pages, then checks headers, cookies, trackers, third-party domains,
+          DNS email-auth records, DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files, mixed content,
+          SRI coverage, reverse-tabnabbing, third-party form actions, and client-side hygiene signals.
         </p>
       </section>
 
       <section className="glass content-panel">
-        <Pill tone="violet">Runtime companion</Pill>
-        <h2>Local browser evidence without public browser infrastructure</h2>
+        <Pill tone="green">Enhanced scan</Pill>
+        <h2>Optional JavaScript rendering</h2>
         <p>
-          The Playwright CLI executes target JavaScript on the user&apos;s computer, observes sanitized runtime requests and browser state, writes a JSON report,
-          and opens it in the same TraceLattice interface through a private URL fragment. This adds runtime visibility without running arbitrary websites inside the public Vercel service.
+          When enabled, TraceLattice first validates the same public URL, then asks Cloudflare Browser Rendering to load it once and return rendered HTML.
+          The app parses that rendered page with the same local rules. It does not use visitor cookies, log in, click, submit forms, bypass consent, or store page bodies.
         </p>
-        <Link className="inline-feature-link" href="/deep-scan"><Activity size={16} />Open the local deep-scan workflow</Link>
+        <p className="muted">
+          Configure <code>CLOUDFLARE_ACCOUNT_ID</code> and <code>CLOUDFLARE_API_TOKEN</code> to enable it. Without those keys, Standard scan still works.
+        </p>
       </section>
 
       <section className="content-panel portfolio-proof">
         <div className="portfolio-proof-heading">
           <div><Pill tone="green">Engineering evidence</Pill><h2>Built to be inspected, not merely demonstrated.</h2></div>
-          <ShieldCheck size={28} />
+          <Sparkles size={28} />
         </div>
         <div className="decision-grid">
           {decisions.map(([Icon, title, copy]) => (
@@ -82,7 +84,7 @@ export default function AboutPage() {
         </div>
         <div className="verification-list">
           <span><CheckCircle2 size={15} />Focused unit suites for URL validation, scoring, headers, cookies, trackers, and third parties</span>
-          <span><CheckCircle2 size={15} />Responsive browser verification at desktop, tablet, and mobile widths</span>
+          <span><CheckCircle2 size={15} />Public-origin validation before static fetches and optional hosted-browser renders</span>
           <span><CheckCircle2 size={15} />Production build, lint, API, loading, error, export, and report-state checks</span>
         </div>
         <div className="proof-links">

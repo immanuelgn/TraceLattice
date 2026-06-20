@@ -6,5 +6,4 @@ export interface TrackerPattern {
   category: TrackerCategory;
 }
 
-// The shared JSON list is used by both the hosted scanner and local runtime CLI.
 export const trackerPatterns = patterns as TrackerPattern[];

@@ -1,10 +1,10 @@
-import { ArrowRight, Braces, Globe2, HardDrive, ServerCog, ShieldCheck } from "lucide-react";
+﻿import { ArrowRight, Braces, Globe2, HardDrive, ServerCog, ShieldCheck } from "lucide-react";
 
 export function ArchitectureDiagram() {
   const nodes = [
     [Globe2, "Browser", "URL input + report UI"],
-    [ServerCog, "Route handler", "Validation + bounded fetch"],
-    [ShieldCheck, "Analysis pipeline", "Headers, cookies, resources, DNS/TLS"],
+    [ServerCog, "Route handler", "Validation + fetch/render"],
+    [ShieldCheck, "Analysis pipeline", "Headers, cookies, rendered/static resources, DNS/TLS"],
     [Braces, "Scoring", "Weighted evidence ledger"],
     [HardDrive, "Local browser", "Optional summary history"],
   ] as const;

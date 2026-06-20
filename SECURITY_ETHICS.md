@@ -1,10 +1,8 @@
-# Security and ethics
+﻿# Security and ethics
 
 TraceLattice is defensive-use software for examining bounded public-origin metadata.
 
-The optional local Playwright scanner executes target JavaScript only on the user's computer. It blocks service workers, validates every outgoing HTTP/S hostname, rejects private and reserved destinations, caps requests, and does not collect cookie values, storage values, request bodies, response bodies, or authorization headers.
-
-It does not perform exploitation, vulnerability attacks, brute force, payload testing, bypass attempts, credential capture, login automation, private-system scanning, full-site crawling, or JavaScript execution.
+It does not perform exploitation, vulnerability attacks, brute force, payload testing, bypass attempts, credential capture, login automation, private-system scanning, or full-site crawling.
 
 ## SSRF controls
 
@@ -14,10 +12,14 @@ It does not perform exploitation, vulnerability attacks, brute force, payload te
 - hostnames require a public suffix where practical;
 - DNS A and AAAA records are checked before requests;
 - each redirect destination is independently validated;
-- redirects, time, extra same-origin HTML requests, and response body size are bounded;
+- redirects, time, extra same-origin HTML requests, hosted-browser waits, and response body size are bounded;
 - internal error details and stack traces are not returned.
 
 DNS validation reduces SSRF risk but a production-grade scanner with higher stakes should additionally pin the validated IP at connection time to mitigate DNS rebinding.
+
+## Enhanced scan
+
+Enhanced scan is optional. When enabled and configured, TraceLattice validates the public URL first, then asks Cloudflare Browser Rendering to load the page once and return rendered HTML. It does not send visitor cookies, authenticate, click, submit forms, bypass consent screens, or store rendered page bodies.
 
 ## Data handling
 
@@ -25,4 +27,4 @@ Cookie values are never returned or stored. HTML is held only in memory for the 
 
 ## Accuracy
 
-TraceLattice may miss resources loaded after JavaScript execution, broad crawling, user interaction, consent, geography checks, authentication, or delayed initialization. It inventories static script/link attributes, but it does not run target code. Findings and scores are educational heuristics, not proof of security, maliciousness, GDPR/CCPA compliance, or legal conclusions.
+Standard scan may miss resources loaded after JavaScript execution. Enhanced scan can reveal JavaScript-rendered DOM and resource references, but it may still miss broad crawling, user interaction, consent-gated flows, geography checks, authentication, delayed initialization, and full runtime network behavior. Findings and scores are educational heuristics, not proof of security, maliciousness, GDPR/CCPA compliance, or legal conclusions.

@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Activity, Clock3, GitCompareArrows, Info, Menu, Radar, Scale, ShieldCheck, X } from "lucide-react";
+import { Clock3, GitCompareArrows, Info, Menu, Radar, Scale, ShieldCheck, X } from "lucide-react";
 import { BrandMark } from "./BrandMark";
 
 const links = [
   [Radar, "Scan", "/"],
-  [Activity, "Deep scan", "/deep-scan"],
   [GitCompareArrows, "Compare", "/compare"],
   [Clock3, "Recent", "/recent"],
   [Scale, "Methodology", "/methodology"],

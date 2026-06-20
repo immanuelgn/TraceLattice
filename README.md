@@ -1,6 +1,6 @@
 # TraceLattice
 
-TraceLattice is a defensive web security posture scanner for public websites. It analyzes HTTP security headers, cookie attributes, third-party resources, tracker patterns, TLS, DNS email authentication, and static client-side risks without executing target JavaScript.
+TraceLattice is a defensive web security posture scanner for public websites. It combines a hosted passive scanner with a local Playwright runtime scanner for JavaScript-loaded requests, trackers, cookies, browser storage, and WebSockets.
 
 [Live Demo](https://tracelattice.vercel.app)
 
@@ -16,6 +16,7 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 - Produces deterministic component scores with visible deductions and weighted calculations
 - Supports JSON export, summary copy, side-by-side comparison, and browser-local scan history
 - Includes responsive loading, cancellation, timeout, validation, rate-limit, and failure states
+- Runs an optional local Chromium scan that opens its private runtime report in the web interface
 
 ## Tech Stack
 
@@ -25,6 +26,7 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 - Node.js
 - Tailwind CSS
 - Vitest
+- Playwright
 - Vercel Functions
 
 ## Security Engineering
@@ -51,6 +53,12 @@ Browser
   -> Analyze headers, cookies, resources, TLS, and DNS
   -> Calculate deterministic scores and recommendations
   -> Return a typed ScanReport
+
+Local CLI
+  -> Launch isolated Chromium
+  -> Validate every HTTP/S destination
+  -> Observe runtime network and browser state
+  -> Save JSON and open /deep-scan with a compressed URL fragment
 ```
 
 The final score is calculated from four components:
@@ -77,6 +85,20 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Local Runtime Scan
+
+```bash
+npm run deep-scan -- https://example.com
+```
+
+The command uses installed Chrome when available. To install Playwright Chromium:
+
+```bash
+npm run deep-scan:install
+```
+
+Every scan writes a JSON report. Ordinary reports are compressed into the URL fragment and opened at `/deep-scan`; URL fragments are not sent to the web server. Larger reports can be imported from the generated JSON file.
+
 ## Testing
 
 ```bash
@@ -86,13 +108,14 @@ npm run build
 npm audit --omit=dev
 ```
 
-The test suite covers URL validation, private IP blocking, header analysis, cookie analysis, tracker detection, third-party extraction, scoring behavior, and demo-score consistency.
+The test suite covers URL validation, private IP blocking, header analysis, cookie analysis, tracker detection, third-party extraction, scoring behavior, report validation, and demo-score consistency.
 
 ## Limitations
 
 - Static analysis only; target JavaScript is not executed
 - No authentication, form submission, exploitation, or broad crawling
 - Runtime, consent-gated, authenticated, and region-specific behavior may not be visible
+- The local runtime scan observes one page load and a bounded settling window; it does not click consent dialogs or authenticate
 - Scores are evidence-based heuristics, not compliance certifications or vulnerability assessments
 - DNS validation does not provide connection-time IP pinning against DNS rebinding
 

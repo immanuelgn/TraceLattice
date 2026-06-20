@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { CheckCircle2, RotateCcw, ShieldCheck } from "lucide-react";
+import { Activity, ArrowRight, CheckCircle2, RotateCcw, ShieldCheck } from "lucide-react";
 import type { ScanReport } from "@/lib/scan/types";
 import { ReportView } from "./ReportView";
 import { UrlScanForm } from "./ScanExperience";
@@ -65,6 +66,10 @@ export function HomeScanExperience() {
           {coverage.map((item) => <span key={item}><CheckCircle2 size={15} />{item}</span>)}
         </div>
       </div>
+      <Link className="deep-scan-callout" href="/deep-scan">
+        <span><Activity size={18} /><span><strong>Need runtime evidence?</strong><small>Run the local Playwright scanner to observe JavaScript-loaded requests, trackers, storage, and WebSockets.</small></span></span>
+        <ArrowRight size={18} />
+      </Link>
     </section>
   );
 }

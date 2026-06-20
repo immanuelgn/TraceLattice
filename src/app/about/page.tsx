@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Braces, CheckCircle2, Gauge, LockKeyhole, ServerCog, ShieldCheck } from "lucide-react";
+import { Activity, Braces, CheckCircle2, Gauge, LockKeyhole, ServerCog, ShieldCheck } from "lucide-react";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
 import { Pill, SectionHeading } from "@/components/Primitives";
 
@@ -35,7 +35,7 @@ export default function AboutPage() {
           </p>
         </div>
         <div className="stat-stack">
-          <span><strong>$0</strong> required infrastructure</span>
+          <span><strong>2</strong> complementary scan modes</span>
           <span><strong>3</strong> HTML pages max</span>
           <span><strong>0</strong> retained page bodies</span>
         </div>
@@ -54,6 +54,16 @@ export default function AboutPage() {
           DNSSEC delegation, MTA-STS, TLS-RPT, CAA, TLS certificate health, security.txt, public discovery files, mixed-content references, SRI coverage,
           reverse-tabnabbing signals, third-party form actions, cookies, headers, trackers, and third-party domains.
         </p>
+      </section>
+
+      <section className="glass content-panel">
+        <Pill tone="violet">Runtime companion</Pill>
+        <h2>Local browser evidence without public browser infrastructure</h2>
+        <p>
+          The Playwright CLI executes target JavaScript on the user&apos;s computer, observes sanitized runtime requests and browser state, writes a JSON report,
+          and opens it in the same TraceLattice interface through a private URL fragment. This adds runtime visibility without running arbitrary websites inside the public Vercel service.
+        </p>
+        <Link className="inline-feature-link" href="/deep-scan"><Activity size={16} />Open the local deep-scan workflow</Link>
       </section>
 
       <section className="content-panel portfolio-proof">

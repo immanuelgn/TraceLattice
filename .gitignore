@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+tracelattice-deep-*.json
 AGENTS.md
 CLAUDE.md
 

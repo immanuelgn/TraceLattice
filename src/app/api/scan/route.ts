@@ -9,6 +9,7 @@ import { fetchWebsite } from "@/lib/scan/fetchWebsite";
 import { parseHtml } from "@/lib/scan/parseHtml";
 import { rateLimit } from "@/lib/scan/rateLimit";
 import { buildRecommendations } from "@/lib/scan/recommendations";
+import { incrementLifetimeScanCount } from "@/lib/scan/scanCounter";
 import { renderPublicPageWithBrowser } from "@/lib/scan/renderWithBrowser";
 import { scorePrivacy } from "@/lib/scan/scorePrivacy";
 import { normalizeUrl } from "@/lib/scan/validateUrl";
@@ -145,6 +146,8 @@ export async function POST(request: NextRequest) {
     });
     const score = rendered ? enhanceScore(baseScore) : baseScore;
 
+    const lifetimeScanCount = await incrementLifetimeScanCount().catch(() => null);
+
     const report: ScanReport = {
       source: rendered ? {
         kind: "enhanced",
@@ -164,6 +167,7 @@ export async function POST(request: NextRequest) {
       rootDomain,
       scannedAt: new Date().toISOString(),
       durationMs: Date.now() - startedAt,
+      ...(lifetimeScanCount !== null ? { lifetimeScanCount } : {}),
       statusCode: fetched.statusCode,
       https: {
         enabled: final.protocol === "https:",

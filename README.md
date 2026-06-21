@@ -23,7 +23,7 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 - Identifies third-party domains, scripts, trackers, forms, mixed content, and supply-chain exposure
 - Checks TLS certificates, SPF, DMARC, MX, CAA, DNSSEC, MTA-STS, TLS-RPT, and `security.txt`
 - Produces deterministic component scores with visible deductions and weighted calculations
-- Supports JSON export, summary copy, side-by-side comparison, and browser-local scan history
+- Supports JSON export, summary copy, side-by-side comparison, browser-local scan history, and a global lifetime scan counter
 - Includes responsive loading, cancellation, timeout, validation, rate-limit, and failure states
 
 ## Tech Stack
@@ -36,6 +36,7 @@ TraceLattice is a defensive web security posture scanner for public websites. It
 - Vitest
 - Vercel Functions
 - Cloudflare Browser Rendering (optional Enhanced scan)
+- Upstash Redis (global lifetime scan counter)
 
 ## Security Engineering
 

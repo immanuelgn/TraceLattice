@@ -94,6 +94,7 @@ export interface ScanReport {
   rootDomain: string;
   scannedAt: string;
   durationMs: number;
+  lifetimeScanCount?: number;
   statusCode: number;
   https: {
     enabled: boolean;
